@@ -1,0 +1,6 @@
+{
+  "name": "online-test",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": { "@netlify/blobs": "^8.1.0" }
+}
