@@ -81,6 +81,19 @@
         .ring::before{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff}.ring b{position:relative;font-size:30px}
         .low{background:linear-gradient(135deg,#fff7ed,#ffe4e6)!important;border:2px solid #fdba74}.low h2{color:#c2410c}
         .tip{background:#fff;border-left:4px solid #f97316;border-radius:12px;padding:10px 12px;text-align:left;margin:8px 0;font-size:14px;color:#9a3412}
+        html{scroll-behavior:smooth}
+        .view{animation:fadeIn .45s ease}@keyframes fadeIn{from{opacity:0}}
+        .wrap .card{transition:transform .25s,box-shadow .25s}.wrap .card:hover{transform:translateY(-2px);box-shadow:0 14px 44px #1e293b2e}
+        .wrap .card:nth-child(2){animation-delay:.05s}.wrap .card:nth-child(3){animation-delay:.1s}.wrap .card:nth-child(4){animation-delay:.15s}.wrap .card:nth-child(5){animation-delay:.2s}.wrap .card:nth-child(6){animation-delay:.25s}
+        .opt{min-height:48px}
+        .fw{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
+        .sbox{background:#ffffffd0;border-radius:18px;padding:12px;margin:12px 0}.sbt{font-weight:700;margin-bottom:4px}
+        .stars span{font-size:40px;color:#cbd5e1;cursor:pointer;transition:transform .2s,color .2s;display:inline-block;padding:0 2px;user-select:none}
+        .stars:hover span{color:#fbbf24}.stars span:hover~span{color:#cbd5e1}.stars span:hover{transform:scale(1.25) rotate(-8deg)}
+        .stars span.on{color:#fbbf24;filter:drop-shadow(0 0 8px #fbbf2499);animation:pop .4s}@keyframes pop{50%{transform:scale(1.45)}}
+        .stars.shake{animation:shake .5s}@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+        .smsg{min-height:26px;font-weight:700;margin-top:6px;animation:up .3s}.smsg.bad{color:#dc2626}.smsg.good{color:#15803d;font-size:18px}
+        @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
         @media print{body{display:none!important}}
     </style>
 </head>
@@ -209,7 +222,46 @@
         try { await api('m/setpass', 'POST', { login: l, password: p }); alert('✅ Parol o‘zgartirildi. Studentga yangi parolni ayting.'); } catch (e) { alert(e.message); }
     }
 
-    function ringAnim(p) { const r = $('#ring'), t = $('#rp'); let x = 0; const step = () => { x = Math.min(p, x + Math.max(1, p / 40)); r.style.setProperty('--p', x); t.textContent = Math.round(x) + '%'; if (x < p) requestAnimationFrame(step); }; step(); }
+    const DEF_PY = 'print("UmidTeacher")';
+    new MutationObserver(() => { app.classList.remove('view'); void app.offsetWidth; app.classList.add('view'); }).observe(app, { childList: true });
+    function boom() {
+        if (!AC) return;
+        try {
+            const n = AC.sampleRate * .35, b = AC.createBuffer(1, n, AC.sampleRate), d = b.getChannelData(0);
+            for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3);
+            const s = AC.createBufferSource(), g = AC.createGain(); g.gain.value = .22; s.buffer = b; s.connect(g); g.connect(AC.destination); s.start();
+        } catch {}
+    }
+    function fireworks(ms = 9000) {
+        const c = document.createElement('canvas'); c.className = 'fw'; document.body.appendChild(c);
+        const x = c.getContext('2d'), W = c.width = innerWidth, H = c.height = innerHeight, rk = [], pt = [], end = Date.now() + ms; let last = 0;
+        const launch = () => rk.push({ x: W * (.12 + Math.random() * .76), y: H, ty: H * (.12 + Math.random() * .38), vy: -(8 + Math.random() * 3), h: Math.random() * 360 });
+        const burst = r => { for (let i = 0; i < 80; i++) { const a = Math.random() * 6.283, sp = 1 + Math.random() * 5; pt.push({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, l: 1, h: r.h + Math.random() * 50 }); } boom(); };
+        (function f(t) {
+            x.globalCompositeOperation = 'destination-out'; x.fillStyle = 'rgba(0,0,0,.2)'; x.fillRect(0, 0, W, H); x.globalCompositeOperation = 'lighter';
+            if (Date.now() < end && t - last > 420) { launch(); if (Math.random() < .5) launch(); last = t; }
+            for (let i = rk.length - 1; i >= 0; i--) { const r = rk[i]; r.y += r.vy; r.vy *= .985; x.fillStyle = `hsl(${r.h},100%,70%)`; x.fillRect(r.x, r.y, 3, 9); if (r.y <= r.ty || r.vy > -2) { burst(r); rk.splice(i, 1); } }
+            for (let i = pt.length - 1; i >= 0; i--) { const p = pt[i]; p.x += p.vx; p.y += p.vy; p.vy += .05; p.vx *= .985; p.l -= .013; x.fillStyle = `hsla(${p.h},100%,60%,${Math.max(p.l, 0)})`; x.beginPath(); x.arc(p.x, p.y, 2.3, 0, 6.283); x.fill(); if (p.l <= 0) pt.splice(i, 1); }
+            if (Date.now() < end + 2500 || pt.length || rk.length) requestAnimationFrame(f); else c.remove();
+        })(0);
+    }
+    async function rate(n) {
+        getAC();
+        document.querySelectorAll('.stars span').forEach(s => s.classList.toggle('on', +s.dataset.n <= n));
+        const m = $('#sm'), st = $('.stars');
+        if (n <= 3) { m.className = 'smsg bad'; m.textContent = 'Bratishka, adashma — 5 ta qil! 😄'; st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake'); }
+        else { m.className = 'smsg good'; m.textContent = 'Ee Olloh rozi bo‘lsin! 🤲✨'; fireworks(7000); }
+        try { await api('stars', 'POST', { stars: n }); } catch {}
+    }
+    async function loadRate() {
+        try {
+            const d = await api('m/rating'); let rk = 0;
+            $('#s-rate').innerHTML = `<div class="card"><h2>🏅 Reyting</h2><p class="sub">Tugatganlar: <b>${d.done} / ${d.total}</b> · ⭐ O‘rtacha baho: <b>${d.avgStars || '—'}</b> (${d.rated} ta)</p>` +
+                (d.list.map((x, i) => { if (!(i && x.score === d.list[i - 1].score)) rk = i + 1; const st = x.stars || 0;
+                    return `<div class="rrow r${Math.min(rk, 4)}"><span class="rn">${['', '🥇', '🥈', '🥉'][rk] || rk}</span><span class="rname">${esc(x.name)}<br><small>${x.correct}/${x.n} to‘g‘ri · ${x.score}/${x.total} ball · ${'★'.repeat(st)}${'☆'.repeat(5 - st)}</small></span><b>${x.pct}%</b></div>`; }).join('') || 'Hali hech kim testni tugatmagan') + '</div>';
+        } catch (e) { $('#s-rate').innerHTML = `<div class="card">${esc(e.message)}</div>`; }
+    }
+    function ringAnim(p, n) { const r = $('#ring'), t = $('#rp'); let x = 0; const step = () => { x = Math.min(p, x + Math.max(1, p / 40)); r.style.setProperty('--p', x); t.textContent = Math.round(x * n / 100) + '/' + n; if (x < p) requestAnimationFrame(step); }; step(); }
     function setOut(el, t) { el.textContent = t; el.classList.toggle('bad', t.startsWith('❌')); }
     /* ---- PyCharm-uslubidagi Python muharriri ---- */
     const PK = new Set('False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield'.split(' '));
@@ -305,7 +357,7 @@
                 const t = q.type || 'mcq', h = `<div class="card"><b>${i + 1}. ${esc(q.text)}</b><span class="pill">${L[t]}</span><span class="pill">${q.pts || 1} ball</span>`;
                 if (t === 'text') return h + `<input placeholder="Javobingizni yozing" value="${esc(ans[q.id] ?? '')}" oninput="saveTxt(${i},this.value)"></div>`;
                 if (t === 'practice') return h + `<textarea rows="4" placeholder="Amaliy javobingizni yozing" oninput="saveTxt(${i},this.value)">${esc(ans[q.id] ?? '')}</textarea></div>`;
-                if (t === 'code') return h + `${pyEd('c' + i, localStorage.getItem('d:' + q.id) ?? q.starter ?? '', `oninput="localStorage.setItem('d:${q.id}',this.value)"`)}<button class="alt" onclick="runCode(${i})">▶ Run</button><pre class="out" id="o${i}">${esc(ans[q.id] ?? '')}</pre><small>Javob sifatida oxirgi Run natijasi yuboriladi.</small></div>`;
+                if (t === 'code') return h + `${pyEd('c' + i, localStorage.getItem('d:' + q.id) ?? DEF_PY, `oninput="localStorage.setItem('d:${q.id}',this.value)"`)}<button class="alt" onclick="runCode(${i})">▶ Run</button><pre class="out" id="o${i}">${esc(ans[q.id] ?? '')}</pre><small>Javob sifatida oxirgi Run natijasi yuboriladi.</small></div>`;
                 return h + q.options.map((o, j) => `<label class="opt ${ans[q.id] === j ? 'on' : ''}"><input type="radio" name="q${i}" ${ans[q.id] === j ? 'checked' : ''} onchange="pick(${i},${j},this)">${esc(o)}</label>`).join('') + '</div>';
             }).join('') + `<button onclick="getAC();if(confirm('Testni yakunlaysizmi?'))finishTest()">✅ Yakunlash</button></div>`;
         clearInterval(tick); tickFn(); tick = setInterval(tickFn, 1000); updProg(); edAll();
@@ -330,21 +382,21 @@
     async function finishTest() {
         clearInterval(tick); stopGuard();
         await Promise.all(qs.filter(q => q.type === 'text' || q.type === 'practice').map(q => api('answer', 'POST', { qid: q.id, choice: String(ans[q.id] ?? '') }).catch(() => {})));
-        try { done(await api('submit', 'POST'), true); } catch { studentView(); }
+        try { done(await api('submit', 'POST', { answers: ans }), true); } catch { studentView(); }
     }
     function done(d, fresh) {
-        stopGuard(); clearTimeout(rankT); if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-        const p = d.total ? Math.round(d.score / d.total * 100) : 0, win = p >= 70, c = win ? '#16a34a' : p >= 40 ? '#f97316' : '#ef4444';
+        stopGuard(); if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        const p = d.total ? Math.round(d.score / d.total * 100) : 0, win = p >= 70, c = win ? '#16a34a' : p >= 40 ? '#f97316' : '#ef4444', fr = d.n ? d.correct / d.n * 100 : 0;
         app.innerHTML = `<div class="center"><div class="card hero wide ${win ? 'win' : 'low'}">
-  <div class="ring" id="ring" style="--c:${c}"><b id="rp">0%</b></div>
+  <div class="ring" id="ring" style="--c:${c}"><b id="rp">0/${d.n}</b></div>
   <h2>${win ? 'Tabriklaymiz, ' + esc(d.name) + '! 🎉' : p ? 'Yaxshi urinish! 💪' : 'Hali hammasi oldinda! 🌱'}</h2>
   <p class="msg">${win ? 'Siz juda ham yaxshi natija qildingiz! Bu — sizning mehnatingiz, bilimingiz va qat‘iyatingiz samarasi. Ilmingiz ziyoda, yo‘lingiz ochiq bo‘lsin. Shunday davom eting! ✨' : p ? 'Sizning natijangiz yomon emas, lekin yaxshi ham emas.' : 'Afsuski, bu safar to‘g‘ri javob chiqmadi.'}</p>
   ${win ? '' : '<div class="tip">💡 Xato — o‘rganishning bir qismi. Mavzularni takrorlang, o‘qituvchidan so‘rang — keyingi safar albatta yaxshiroq bo‘ladi!</div>'}
-  <div class="stats"><div><b>${d.correct}/${d.n}</b><small>To‘g‘ri</small></div><div><b>${d.score}/${d.total}</b><small>Ball</small></div><div><b>${p}%</b><small>Natija</small></div></div>
-  <div id="rank"></div><button class="gray" onclick="logout()">Chiqish</button></div></div>`;
-        ringAnim(p);
-        if (fresh) { playSound(win); if (win) confetti(); }
-        loadRank(d.name);
+  <div class="stats"><div><b>${d.correct}/${d.n}</b><small>To‘g‘ri javoblar</small></div><div><b>${d.score}/${d.total}</b><small>Ball</small></div></div>
+  <div class="sbox"><div class="sbt">⭐ Test haqida baho bering</div><div class="stars">${[1, 2, 3, 4, 5].map(n => `<span data-n="${n}" class="${n <= (d.stars || 0) ? 'on' : ''}" onclick="rate(${n})">★</span>`).join('')}</div><div class="smsg" id="sm"></div></div>
+  <button class="gray" onclick="logout()">Chiqish</button></div></div>`;
+        ringAnim(fr, d.n);
+        if (fresh) { playSound(win); if (win) fireworks(); }
     }
 
     /* anti-cheat */
@@ -388,7 +440,7 @@
     function tab(k) {
         document.querySelectorAll('.tabs [data-t]').forEach(b => b.classList.toggle('off', b.dataset.t !== k));
         document.querySelectorAll('.sec').forEach(s => s.hidden = s.id !== 's-' + k);
-        if (k === 'hist') loadHist(); if (k === 'ast') adminState();
+        if (k === 'hist') loadHist(); if (k === 'rate') loadRate(); if (k === 'ast') adminState();
     }
     const pct = r => r.total ? Math.round(r.score / r.total * 100) : 0;
     async function loadHist() {
@@ -408,22 +460,22 @@
     function teacherView() {
         $('#hot').innerHTML = '';
         app.innerHTML = `<div class="wrap"><div class="card top"><h2>👩‍🏫 O‘qituvchi paneli</h2><button class="gray sm" onclick="logout()">Chiqish</button></div>
-  ${tabsHtml([['live', '📡 Jonli'], ['qs', '📝 Savollar'], ['hist', '🕘 Tarix']])}
+  ${tabsHtml([['live', '📡 Jonli'], ['qs', '📝 Savollar'], ['rate', '🏅 Reyting'], ['hist', '🕘 Tarix']])}
   <section class="sec" id="s-live"><div class="chips" id="chips"></div><div class="card"><h2>🔔 Ogohlantirishlar</h2><div id="al">Hozircha yo‘q</div></div><div class="card"><h2>👥 Studentlar</h2><div id="st"></div></div></section>
   <section class="sec" id="s-qs" hidden>
   <div class="card"><h2>➕ Savol qo‘shish</h2>
   <select id="ty" onchange="tyChange()"><option value="mcq">📋 Test (variantli)</option><option value="text">✍️ Masala (variantsiz, matn javob)</option><option value="code">🐍 Python masala (kod natijasi)</option><option value="practice">🛠 Amaliy (har qanday javob to‘g‘ri)</option></select>
   <input id="qt" placeholder="Savol / masala matni">
   <div id="f-mcq">${[0, 1, 2, 3].map(i => `<label class="opt"><input type="radio" name="c" value="${i}" ${i ? '' : 'checked'}><input class="o" placeholder="${i + 1}-variant${i < 2 ? '' : ' (ixtiyoriy)'}"></label>`).join('')}<small>To‘g‘ri javob — doirachani belgilang.</small></div>
-  <div id="f-ans" style="display:none"><input id="an" placeholder="To‘g‘ri javob (Python uchun — kutilgan natija)"><textarea id="st2" rows="3" placeholder="Boshlang‘ich kod (ixtiyoriy, faqat Python uchun)"></textarea></div>
+  <div id="f-ans" style="display:none"><input id="an" placeholder="To‘g‘ri javob (Python uchun — kutilgan natija)"></div>
   <input id="pt" type="number" min="1" max="100" placeholder="Shu savol uchun ball (standart: 1)"><div class="err" id="e"></div><button onclick="addQ()">Qo‘shish</button></div>
   <div class="card"><h2>🎯 Ball berish (oraliq bo‘yicha)</h2><small>Masalan: 1 dan 10 gacha — 2 ball, 11 dan 20 gacha — 5 ball.</small>
   <input id="bf" type="number" min="1" placeholder="Nechanchi savoldan (masalan 1)"><input id="bt" type="number" min="1" placeholder="Nechanchi savolgacha (masalan 10)"><input id="bp" type="number" min="1" max="100" placeholder="Ball (masalan 2)">
   <div class="err" id="be"></div><button class="alt" onclick="bulkPts()">Ball belgilash</button></div>
-  <div class="card"><h2>🐍 Python (Run)</h2>${pyEd('pc', 'a = 10\nif a > 5:\n    print("Katta")\nelif a == 5:\n    print("Teng")\nelse:\n    print("Kichik")\n')}<button class="alt" onclick="tRun()">▶ Run</button><pre class="out" id="po"></pre></div>
+  <div class="card"><h2>🐍 Python (Run)</h2>${pyEd('pc', DEF_PY)}<button class="alt" onclick="tRun()">▶ Run</button><pre class="out" id="po"></pre></div>
   <div class="card"><h2>📚 Savollar (<span id="qn">0</span>)</h2><div id="ql"></div></div></section>
-  <section class="sec" id="s-hist" hidden></section></div>`;
-        edAll(); since = 0; first = true; alerts = []; poll(); clearInterval(pollT); pollT = setInterval(poll, 7000);
+  <section class="sec" id="s-rate" hidden></section><section class="sec" id="s-hist" hidden></section></div>`;
+        edAll(); since = 0; first = true; alerts = []; poll(); clearInterval(pollT); pollT = setInterval(() => { if (!document.hidden) poll(); }, 9000);
     }
     function tyChange() { const t = $('#ty').value; $('#f-mcq').style.display = t === 'mcq' ? '' : 'none'; $('#f-ans').style.display = (t === 'text' || t === 'code') ? '' : 'none'; }
     async function tRun() { const o = $('#po'); o.classList.remove('bad'); o.textContent = '⏳ ...'; setOut(o, await runPy($('#pc').value)); }
@@ -445,10 +497,10 @@
     async function addQ() {
         const ty = $('#ty').value, o = { type: ty, text: $('#qt').value, pts: $('#pt').value };
         if (ty === 'mcq') { const all = [...document.querySelectorAll('.o')].map(x => x.value.trim()), idx = Number(document.querySelector('input[name=c]:checked').value); o.options = all.filter(Boolean); o.correct = o.options.indexOf(all[idx]); }
-        else if (ty !== 'practice') { o.answer = $('#an').value; o.starter = $('#st2').value; }
+        else if (ty !== 'practice') { o.answer = $('#an').value; }
         try {
             await api('t/question', 'POST', o);
-            ['#qt', '#pt', '#an', '#st2'].forEach(x => $(x).value = ''); document.querySelectorAll('.o').forEach(x => x.value = ''); $('#e').textContent = ''; poll();
+            ['#qt', '#pt', '#an'].forEach(x => $(x).value = ''); document.querySelectorAll('.o').forEach(x => x.value = ''); $('#e').textContent = ''; poll();
         } catch (e) { $('#e').textContent = e.message; }
     }
     async function bulkPts() {
@@ -461,7 +513,7 @@
     function adminView() {
         $('#hot').innerHTML = '';
         app.innerHTML = `<div class="wrap"><div class="card top"><h2>🛡️ Admin paneli</h2><button class="gray sm" onclick="logout()">Chiqish</button></div>
-  ${tabsHtml([['ast', '⚙️ Boshqaruv'], ['hist', '🕘 Tarix']])}<section class="sec" id="s-ast"></section><section class="sec" id="s-hist" hidden></section></div>`;
+  ${tabsHtml([['ast', '⚙️ Boshqaruv'], ['rate', '🏅 Reyting'], ['hist', '🕘 Tarix']])}<section class="sec" id="s-ast"></section><section class="sec" id="s-rate" hidden></section><section class="sec" id="s-hist" hidden></section></div>`;
         adminState(); clearInterval(pollT); pollT = setInterval(adminState, 8000);
     }
     async function adminState() {

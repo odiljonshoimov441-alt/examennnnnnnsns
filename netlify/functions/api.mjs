@@ -9,6 +9,9 @@ const retry = async f => { for (let i = 0; ; i++) { try { return await f(); } ca
 const get = k => retry(() => store.get(k, { type: "json" }));
 const set = (k, v) => retry(() => store.setJSON(k, v));
 const list = pre => retry(() => store.list({ prefix: pre }));
+const qc = { v: null, t: 0 };
+const getQ = async () => { if (qc.v && Date.now() - qc.t < 3000) return qc.v; qc.v = (await get("q")) || []; qc.t = Date.now(); return qc.v; };
+const setQ = async v => { await set("q", v); qc.v = v; qc.t = Date.now(); };
 const A_USER = process.env.ADMIN_USER || "admin";
 const A_PASS = process.env.ADMIN_PASS || "Admin#2026";
 
@@ -22,7 +25,7 @@ const send = (c, o) => new Response(JSON.stringify(o), { status: c, headers: { "
 const norm = x => String(x ?? "").replace(/\r/g, "").split("\n").map(l => l.trimEnd()).join("\n").trim().toLowerCase();
 const ok = (q, a) => { const t = q.type || "mcq"; if (t === "mcq") return a === q.correct; if (t === "practice") return norm(a) !== ""; return norm(a) === norm(q.answer); };
 async function finish(s) {
-  const qs = (await get("q")) || [], ans = (await get("ans:" + s.login)) || {};
+  const qs = await getQ(), ans = (await get("ans:" + s.login)) || {};
   s.n = qs.length; s.correct = qs.filter(q => ok(q, ans[q.id])).length; s.total = qs.reduce((a, q) => a + (q.pts || 1), 0); s.score = qs.filter(q => ok(q, ans[q.id])).reduce((a, q) => a + (q.pts || 1), 0); s.submitted = true;
   await set("s:" + s.login, s);
   const t = Date.now(); await set("r:" + pad(t) + "-" + s.login, { t, login: s.login, name: s.name, score: s.score, total: s.total, correct: s.correct, n: s.n });
@@ -31,24 +34,24 @@ async function check(s) { if (s.startedAt && !s.submitted && Date.now() > s.star
 async function view(s) {
   await check(s);
   const run = s.startedAt && !s.submitted;
-  const qs = run ? ((await get("q")) || []) : [];
+  const qs = run ? await getQ() : [];
   return {
     name: s.name, started: !!s.startedAt, submitted: !!s.submitted,
     score: s.submitted ? s.score : null, correct: s.correct || 0, n: s.n || 0, total: s.total || 0,
     remaining: run ? Math.max(0, s.startedAt + DURATION - Date.now()) : DURATION,
     questions: qs.map(q => ({ id: q.id, text: q.text, options: q.options, type: q.type || "mcq", starter: q.starter, pts: q.pts || 1 })),
-    answers: (await get("ans:" + s.login)) || {}
+    stars: s.stars || 0, answers: (await get("ans:" + s.login)) || {}
   };
 }
 
 const ALIVE = 15 * 60 * 1000; // admin: 15 daqiqa faolsizlikdan keyin o‘rin bo‘shaydi
 const adminBusy = async () => { const a = await get("alock"); return !!a && Date.now() - a.t < ALIVE; };
-const adminOk = async tok => { const a = await get("alock"); if (!a || a.token !== tok || Date.now() - a.t > ALIVE) return false; await set("alock", { token: tok, t: Date.now() }); return true; };
+const adminOk = async tok => { const a = await get("alock"); if (!a || a.token !== tok || Date.now() - a.t > ALIVE) return false; if (Date.now() - a.t > 60000) await set("alock", { token: tok, t: Date.now() }); return true; };
 
 async function studentsList() {
   return Promise.all((await list("s:")).blobs.map(async b => {
-    const s = await get(b.key); await check(s);
-    return { name: s.name, login: s.login, left: (await get("l:" + s.login)) || 0, score: s.score, total: s.total,
+    const [s, left] = await Promise.all([get(b.key), get("l:" + b.key.slice(2))]); await check(s);
+    return { name: s.name, login: s.login, left: left || 0, score: s.score, total: s.total, correct: s.correct, n: s.n, stars: s.stars || 0,
       status: s.submitted ? "done" : s.startedAt ? "running" : "waiting",
       remaining: s.startedAt && !s.submitted ? Math.max(0, s.startedAt + DURATION - Date.now()) : null };
   }));
@@ -101,14 +104,14 @@ export default async (req) => {
     if (ses.role === "student") {
       const s = await get("s:" + ses.login);
       if (!s) return send(401, { error: "Qaytadan kiring" });
-      if (P === "/api/rating" && M === "GET") {
-        const all = await studentsList(), done = all.filter(x => x.status === "done"), allDone = all.length > 0 && done.length === all.length;
-        return send(200, { allDone, done: done.length, total: all.length, list: allDone ? done.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name)).map(x => ({ name: x.name, score: x.score, total: x.total, pct: x.total ? Math.round(x.score / x.total * 100) : 0 })) : [] });
+      if (P === "/api/stars" && M === "POST") {
+        await check(s); if (!s.submitted) return send(400, { error: "Avval testni yakunlang" });
+        s.stars = Math.min(5, Math.max(1, Math.round(Number(body.stars) || 0))); await set("s:" + s.login, s); return send(200, { ok: true });
       }
       if (P === "/api/test" && M === "GET") return send(200, await view(s));
       if (P === "/api/start" && M === "POST") {
         if (!s.startedAt) {
-          if (!((await get("q")) || []).length) return send(400, { error: "O‘qituvchi hali savol qo‘shmagan" });
+          if (!(await getQ()).length) return send(400, { error: "O‘qituvchi hali savol qo‘shmagan" });
           s.startedAt = Date.now(); await set("s:" + s.login, s);
         }
         return send(200, await view(s));
@@ -120,7 +123,17 @@ export default async (req) => {
         ans[String(body.qid).slice(0, 20)] = typeof body.choice === "string" ? body.choice.slice(0, 3000) : Number(body.choice); await set("ans:" + s.login, ans);
         return send(200, { ok: true });
       }
-      if (P === "/api/submit" && M === "POST") { if (s.startedAt && !s.submitted) await finish(s); return send(200, await view(s)); }
+      if (P === "/api/submit" && M === "POST") {
+        if (s.startedAt && !s.submitted) {
+          if (body.answers && typeof body.answers === "object" && Date.now() <= s.startedAt + DURATION + 15000) {
+            const ids = new Set((await getQ()).map(q => q.id)), ans = (await get("ans:" + s.login)) || {};
+            for (const [k, v] of Object.entries(body.answers)) if (ids.has(k) && (typeof v === "number" || typeof v === "string")) ans[k] = typeof v === "string" ? v.slice(0, 3000) : v;
+            await set("ans:" + s.login, ans);
+          }
+          await finish(s);
+        }
+        return send(200, await view(s));
+      }
       if (P === "/api/event" && M === "POST") {
         await check(s);
         if (s.startedAt && !s.submitted && ["left", "screenshot", "copy"].includes(body.type)) {
@@ -153,24 +166,29 @@ export default async (req) => {
           q.answer = String(body.answer || "").trim().slice(0, 1000); q.starter = String(body.starter || "").slice(0, 2000);
           if (!text || (type !== "practice" && !q.answer)) return send(400, { error: "Masala matni va to‘g‘ri javobni kiriting" });
         }
-        const qs = (await get("q")) || []; qs.push(q); await set("q", qs);
+        const qs = (await get("q")) || []; qs.push(q); await setQ(qs);
         return send(200, { ok: true });
       }
       if (P === "/api/t/points" && M === "POST") {
         const f = Number(body.from), t = Number(body.to), pts = Math.min(100, Math.max(1, Math.round(Number(body.points) || 1)));
         if (!(f >= 1 && t >= f)) return send(400, { error: "Oraliqni to‘g‘ri kiriting (masalan 1 dan 10 gacha)" });
-        const qs = (await get("q")) || []; qs.forEach((q, i) => { if (i + 1 >= f && i + 1 <= t) q.pts = pts; }); await set("q", qs);
+        const qs = (await get("q")) || []; qs.forEach((q, i) => { if (i + 1 >= f && i + 1 <= t) q.pts = pts; }); await setQ(qs);
         return send(200, { ok: true });
       }
       if (P.startsWith("/api/t/question/") && M === "DELETE") {
         const id = P.split("/").pop();
-        await set("q", ((await get("q")) || []).filter(q => q.id !== id));
+        await setQ(((await get("q")) || []).filter(q => q.id !== id));
         return send(200, { ok: true });
       }
     }
     if ((ses.role === "teacher" || ses.role === "admin") && P.startsWith("/api/m/")) {
       if (ses.role === "admin" && !(await adminOk(tok))) return send(401, { error: "Sessiya tugagan" });
       if (ses.role === "teacher") { const lk = await get("tlock"); if (!lk || lk.token !== tok) return send(401, { error: "Sessiya tugagan" }); }
+      if (P === "/api/m/rating" && M === "GET") {
+        const all = await studentsList(), rated = all.filter(x => x.stars);
+        const list = all.filter(x => x.status === "done").map(x => ({ ...x, pct: x.total ? Math.round(x.score / x.total * 100) : 0 })).sort((a, b) => b.score - a.score || b.pct - a.pct || a.name.localeCompare(b.name));
+        return send(200, { total: all.length, done: list.length, list, rated: rated.length, avgStars: rated.length ? Math.round(rated.reduce((a, x) => a + x.stars, 0) / rated.length * 10) / 10 : 0 });
+      }
       if (P === "/api/m/history" && M === "GET") {
         const tail = async pre => (await Promise.all((await list(pre)).blobs.map(b => b.key).slice(-200).map(k => get(k)))).filter(Boolean).reverse();
         return send(200, { results: await tail("r:"), alerts: await tail("a:") });
