@@ -5,7 +5,7 @@ const T_USER = process.env.TEACHER_USER || "Umid@";
 const T_PASS = process.env.TEACHER_PASS || "UmidjonSamadov";
 const DURATION = 2 * 3600 * 1000; // 2 soat
 const store = getStore({ name: "online-test", consistency: "strong" });
-const retry = async f => { for (let i = 0; ; i++) { try { return await f(); } catch (e) { if (i >= 3) throw e; await new Promise(r => setTimeout(r, 200 * (i + 1))); } } };
+const retry = async f => { for (let i = 0; ; i++) { try { return await f(); } catch (e) { if (i >= 3) throw e; await new Promise(r => setTimeout(r, 200 * (i + 1) + Math.random() * 150)); } } };
 const get = k => retry(() => store.get(k, { type: "json" }));
 const set = (k, v) => retry(() => store.setJSON(k, v));
 const list = pre => retry(() => store.list({ prefix: pre }));
@@ -20,7 +20,7 @@ const pad = n => String(n).padStart(15, "0");
 const send = (c, o) => new Response(JSON.stringify(o), { status: c, headers: { "content-type": "application/json" } });
 
 const norm = x => String(x ?? "").replace(/\r/g, "").split("\n").map(l => l.trimEnd()).join("\n").trim().toLowerCase();
-const ok = (q, a) => (q.type || "mcq") === "mcq" ? a === q.correct : norm(a) === norm(q.answer);
+const ok = (q, a) => { const t = q.type || "mcq"; if (t === "mcq") return a === q.correct; if (t === "practice") return norm(a) !== ""; return norm(a) === norm(q.answer); };
 async function finish(s) {
   const qs = (await get("q")) || [], ans = (await get("ans:" + s.login)) || {};
   s.n = qs.length; s.correct = qs.filter(q => ok(q, ans[q.id])).length; s.total = qs.reduce((a, q) => a + (q.pts || 1), 0); s.score = qs.filter(q => ok(q, ans[q.id])).reduce((a, q) => a + (q.pts || 1), 0); s.submitted = true;
@@ -84,6 +84,14 @@ export default async (req) => {
       return send(200, { token, role: r });
     }
     if (P === "/api/status") return send(200, { teacherBusy: !!(await get("tlock")), adminBusy: await adminBusy() });
+    if (P === "/api/forgot" && M === "POST") {
+      const name = String(body.name || "").trim().slice(0, 60), t = Date.now();
+      if (name.length < 2) return send(400, { error: "Ism familiyangizni yozing" });
+      const fk = "f:" + (name.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").slice(0, 30) || "x"), last = await get(fk);
+      if (last && t - last < 600000) return send(429, { error: "So‘rov yaqinda yuborilgan, biroz kuting" });
+      await set(fk, t); await set(`a:${pad(t)}-${rid().slice(0, 4)}`, { id: t, t, login: "—", name, type: "forgot", detail: "Login yoki parolni unutdi" });
+      return send(200, { ok: true });
+    }
     const tok = req.headers.get("x-token") || body.token;
     const ses = typeof tok === "string" && /^[a-f0-9]{32}$/.test(tok) ? await get("sess:" + tok) : null;
     if (P === "/api/logout" && ses && ses.role === "admin") { const a = await get("alock"); if (a && a.token === tok) await store.delete("alock"); return send(200, { ok: true }); }
@@ -93,6 +101,10 @@ export default async (req) => {
     if (ses.role === "student") {
       const s = await get("s:" + ses.login);
       if (!s) return send(401, { error: "Qaytadan kiring" });
+      if (P === "/api/rating" && M === "GET") {
+        const all = await studentsList(), done = all.filter(x => x.status === "done"), allDone = all.length > 0 && done.length === all.length;
+        return send(200, { allDone, done: done.length, total: all.length, list: allDone ? done.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name)).map(x => ({ name: x.name, score: x.score, total: x.total, pct: x.total ? Math.round(x.score / x.total * 100) : 0 })) : [] });
+      }
       if (P === "/api/test" && M === "GET") return send(200, await view(s));
       if (P === "/api/start" && M === "POST") {
         if (!s.startedAt) {
@@ -130,7 +142,7 @@ export default async (req) => {
         return send(200, { students, questions: (await get("q")) || [], alerts });
       }
       if (P === "/api/t/question" && M === "POST") {
-        const type = ["mcq", "text", "code"].includes(body.type) ? body.type : "mcq";
+        const type = ["mcq", "text", "code", "practice"].includes(body.type) ? body.type : "mcq";
         const text = String(body.text || "").trim().slice(0, 1000);
         const q = { id: rid().slice(0, 8), type, text, pts: Math.min(100, Math.max(1, Math.round(Number(body.pts) || 1))) };
         if (type === "mcq") {
@@ -139,7 +151,7 @@ export default async (req) => {
           if (!text || q.options.length < 2 || !(q.correct >= 0 && q.correct < q.options.length)) return send(400, { error: "Savol, kamida 2 variant va to‘g‘ri javobni kiriting" });
         } else {
           q.answer = String(body.answer || "").trim().slice(0, 1000); q.starter = String(body.starter || "").slice(0, 2000);
-          if (!text || !q.answer) return send(400, { error: "Masala matni va to‘g‘ri javobni kiriting" });
+          if (!text || (type !== "practice" && !q.answer)) return send(400, { error: "Masala matni va to‘g‘ri javobni kiriting" });
         }
         const qs = (await get("q")) || []; qs.push(q); await set("q", qs);
         return send(200, { ok: true });
@@ -163,6 +175,11 @@ export default async (req) => {
         const tail = async pre => (await Promise.all((await list(pre)).blobs.map(b => b.key).slice(-200).map(k => get(k)))).filter(Boolean).reverse();
         return send(200, { results: await tail("r:"), alerts: await tail("a:") });
       }
+      if (P === "/api/m/setpass" && M === "POST") {
+        const l = String(body.login || ""), pw = String(body.password || ""), s = await get("s:" + l);
+        if (!s) return send(404, { error: "Student topilmadi" }); if (pw.length < 4) return send(400, { error: "Parol kamida 4 belgi bo‘lsin" });
+        s.salt = rid(); s.hash = hash(pw, s.salt); await set("s:" + l, s); return send(200, { ok: true });
+      }
       if (P === "/api/m/retake" && M === "POST") {
         const l = String(body.login || ""), s = await get("s:" + l); if (!s) return send(404, { error: "Student topilmadi" });
         ["startedAt", "submitted", "score", "total", "n", "correct"].forEach(k => delete s[k]);
@@ -177,7 +194,7 @@ export default async (req) => {
       if (P.startsWith("/api/a/student/") && M === "DELETE") { const l = decodeURIComponent(P.split("/").pop()); for (const k of ["s:", "ans:", "l:"]) await store.delete(k + l); return send(200, { ok: true }); }
     }
     return send(404, { error: "Topilmadi" });
-  } catch (e) { console.error(e); return send(500, { error: "Server xatosi" }); }
+  } catch (e) { console.error(e); return send(500, { error: "Server xatosi (" + ((e && e.name) || "xato") + "). Qayta urinib ko‘ring" }); }
 };
 
 export const config = { path: "/api/*" };

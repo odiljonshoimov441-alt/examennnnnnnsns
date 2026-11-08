@@ -39,7 +39,7 @@
         .bgs{display:flex;gap:10px;justify-content:center;margin-top:16px}.bgs i{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 5px #0003;transition:.2s}.bgs i:hover{transform:scale(1.25)}
         .top{display:flex;justify-content:space-between;align-items:center}.top h2{margin:0}
         .hs{color:#fff;position:fixed;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#ffffff66;font-size:20px;cursor:pointer;opacity:.28;z-index:30;transition:.3s}.hs:hover{opacity:.7}
-        .hero{position:relative;z-index:40;cursor:grab;touch-action:none}.hero.drag{cursor:grabbing;box-shadow:0 24px 70px #000a;transition:none}
+        .hero{position:relative;z-index:40}.hero.dg{cursor:grab;touch-action:none}.hero.drag{cursor:grabbing;box-shadow:0 24px 70px #000a;transition:none}
         .hs.ad{left:50%;top:50%;translate:-50% -50%;z-index:10;opacity:.55}.hs.ad:hover{opacity:.9}
         .pop.ad{left:50%;top:calc(50% + 40px);z-index:50;transform:translate(-50%,10px) scale(.95)}.pop.ad.open{transform:translateX(-50%)}
         .hs.tl{top:12px;left:12px}.hs.br{bottom:12px;right:12px}
@@ -49,6 +49,27 @@
         .guard input,.guard textarea{-webkit-user-select:text;user-select:text}
         .guard,.guard *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
         .guard input,.guard textarea{-webkit-user-select:text;user-select:text}
+        textarea{resize:vertical;max-width:100%}
+        .lnk{display:block;margin-top:12px;color:#4f46e5;font-size:14px;cursor:pointer;text-decoration:underline}
+        .warnbox{background:#fef2f2;border:2px solid #ef4444;color:#b91c1c;border-radius:18px;padding:14px 16px;text-align:left;font-weight:600;line-height:1.7;margin:12px 0;animation:wp 2s ease-in-out infinite}
+        .warnbox .wt{font-size:18px;font-weight:800;margin-bottom:6px;color:#dc2626}@keyframes wp{50%{box-shadow:0 0 0 7px #ef444430}}
+        .hero.wide{max-width:560px}.msg{font-size:16px;line-height:1.55;margin:6px 0 12px}
+        .stats{display:flex;gap:10px;margin:10px 0}.stats div{flex:1;background:#fff;border-radius:16px;padding:10px;box-shadow:0 2px 10px #0001}.stats b{display:block;font-size:22px}.stats small{color:#64748b}
+        .win{background:linear-gradient(135deg,#fffbeb,#fef3c7 45%,#ecfdf5)!important;border:2px solid #fbbf24}.win h2{color:#b45309}.win .stats b{color:#15803d}
+        .meh{background:#e2e8f0e8!important;filter:saturate(.55)}.meh .big{animation:none}
+        .rk{margin:12px 0;text-align:left}.rk h3{margin:0 0 8px;text-align:center}.rk.wait{text-align:center;background:#eef2ff;border-radius:14px;padding:12px;color:#3730a3}
+        .rrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:14px;background:#fff;margin:6px 0;box-shadow:0 2px 8px #0001;animation:up .4s}
+        .rrow .rn{width:34px;text-align:center;font-weight:800;font-size:20px}.rrow .rname{flex:1}
+        .rrow.r1{background:linear-gradient(90deg,#fde68a,#fff)}.rrow.r2{background:linear-gradient(90deg,#e5e7eb,#fff)}.rrow.r3{background:linear-gradient(90deg,#fdba74,#fff)}.rrow.me{outline:2px solid #6366f1}
+        .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.chip{background:#ffffffe0;border-radius:99px;padding:6px 14px;font-weight:600;font-size:14px;box-shadow:0 2px 8px #0002}
+        #pgw{position:absolute;left:0;right:0;bottom:0;height:3px;background:#ffffff30}#pgb{height:100%;width:0;background:linear-gradient(90deg,#34d399,#6366f1);transition:width .4s}
+        .conf{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60}.conf i{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:fall linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+        .side{position:fixed;top:90px;bottom:70px;width:48px;z-index:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-around;align-items:center}
+        .side.l{left:14px}.side.r{right:14px}
+        .side::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;background:linear-gradient(transparent,#a5b4fc,#f0abfc,transparent);box-shadow:0 0 14px #a5b4fc;opacity:.7}
+        .side span{font-size:24px;animation:tw 3.2s ease-in-out infinite;filter:drop-shadow(0 0 8px #fff8)}.side span:nth-child(2n){animation-delay:-1.4s}.side span:nth-child(3n){animation-delay:-2.2s}
+        @keyframes tw{50%{transform:translateY(-10px) scale(1.2);opacity:.6}}
+        @media(max-width:900px){.side{display:none}}
         @media print{body{display:none!important}}
     </style>
 </head>
@@ -57,12 +78,13 @@
 <div id="cover"><div><div class="big">⚠️</div><h2>Test yashirildi</h2><p>Siz test oynasidan chiqdingiz. O‘qituvchiga xabar yuborildi.</p><button onclick="resume()">Testga qaytish</button></div></div>
 <div id="app"></div>
 <div id="hot"></div>
+<div class="side l"><span>✨</span><span>🪐</span><span>⭐</span><span>🌙</span><span>☄️</span><span>✨</span></div><div class="side r"><span>⭐</span><span>🚀</span><span>✨</span><span>🌍</span><span>💫</span><span>⭐</span></div>
 <script>
     const $ = s => document.querySelector(s), app = $('#app');
     const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const wait = ms => new Promise(z => setTimeout(z, ms));
     let token = localStorage.getItem('token'), role = localStorage.getItem('role');
-    let tick, pollT, remaining = 0, guarding = false, lastEv = 0, qs = [], ans = {}, since = 0, first = true, alerts = [], py, tm;
+    let tick, pollT, rankT, AC, remaining = 0, guarding = false, lastEv = 0, qs = [], ans = {}, since = 0, first = true, alerts = [], py, tm;
 
     async function api(p, m = 'GET', b) {
         const safe = m === 'GET' || /^(answer|submit|start|logout|event)/.test(p);
@@ -83,14 +105,14 @@
     function logout(silent) {
         if ((role === 'teacher' || role === 'admin') && token && !silent) api('logout', 'POST').catch(() => {});
         token = role = null; localStorage.removeItem('token'); localStorage.removeItem('role');
-        stopGuard(); clearInterval(tick); clearInterval(pollT); home();
+        stopGuard(); clearInterval(tick); clearInterval(pollT); clearTimeout(rankT); home();
     }
 
     /* ---------- HOME ---------- */
     const loginForm = r => `<b>${r === 'teacher' ? '👩‍🏫 O‘qituvchi' : '🛡️ Admin'}</b><input id="${r}-l" placeholder="Login" autocapitalize="none"><input id="${r}-p" type="password" placeholder="Parol" onkeydown="if(event.key==='Enter')submitAuth('${r}')"><div class="err" id="${r}-e"></div><button onclick="submitAuth('${r}')">Kirish</button>`;
     async function home() {
         let busy = false, abusy = false; try { const st = await api('status'); busy = st.teacherBusy; abusy = st.adminBusy; } catch {}
-        app.innerHTML = `<div class="center"><div class="card hero"><div class="big">🎓</div><h1>Online imtihon</h1><p class="sub">Student sifatida kiring yoki ro‘yxatdan o‘ting</p>
+        app.innerHTML = `<div class="center"><div class="card hero dg"><div class="big">🎓</div><h1>Online imtihon</h1><p class="sub">Student sifatida kiring yoki ro‘yxatdan o‘ting</p>
   <div class="tabs"><button id="t1" onclick="sm('login')">Kirish</button><button id="t2" class="off" onclick="sm('register')">Ro‘yxatdan o‘tish</button></div><div id="sf"></div></div></div>`;
         sm('login');
         $('#hot').innerHTML = (busy ? '' : `<div class="hs tl" onclick="pop('ptl')">👩‍🏫</div><div class="pop tl" id="ptl">${loginForm('teacher')}</div>`) + (abusy ? '' : `<div class="hs ad" onclick="pop('pad')">🛡️</div><div class="pop ad" id="pad">${loginForm('admin')}</div>`);
@@ -108,10 +130,17 @@
         const end = () => { on = false; el.classList.remove('drag'); };
         el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
     }
+    function forgot() {
+        $('#sf').innerHTML = `<p class="sub" style="margin:4px 0 8px">Ism familiyangizni yozing — o‘qituvchiga so‘rov boradi va u login/parolingizni tiklab beradi.</p><input id="fg" placeholder="Ism familiya"><div class="err" id="fe"></div><button onclick="sendForgot()">📨 O‘qituvchiga yuborish</button><a class="lnk" onclick="sm('login')">← Orqaga</a>`;
+    }
+    async function sendForgot() {
+        try { await api('forgot', 'POST', { name: $('#fg').value }); $('#fe').style.color = '#16a34a'; $('#fe').textContent = '✅ So‘rov yuborildi. O‘qituvchi siz bilan bog‘lanadi.'; }
+        catch (e) { $('#fe').style.color = '#dc2626'; $('#fe').textContent = e.message; }
+    }
     function sm(m) {
         const reg = m === 'register';
         $('#t1').classList.toggle('off', reg); $('#t2').classList.toggle('off', !reg);
-        $('#sf').innerHTML = (reg ? '<input id="student-n" placeholder="Ism familiya">' : '') + `<input id="student-l" placeholder="Login" autocapitalize="none"><input id="student-p" type="password" placeholder="Parol" onkeydown="if(event.key==='Enter')submitAuth('student',${reg})"><div class="err" id="student-e"></div><button onclick="submitAuth('student',${reg})">${reg ? 'Ro‘yxatdan o‘tish' : 'Kirish'} →</button>`;
+        $('#sf').innerHTML = (reg ? '<input id="student-n" placeholder="Ism familiya">' : '') + `<input id="student-l" placeholder="Login" autocapitalize="none"><input id="student-p" type="password" placeholder="Parol" onkeydown="if(event.key==='Enter')submitAuth('student',${reg})"><div class="err" id="student-e"></div><button onclick="submitAuth('student',${reg})">${reg ? 'Ro‘yxatdan o‘tish' : 'Kirish'} →</button>${reg ? '' : '<a class="lnk" onclick="forgot()">Login yoki parol esdan chiqdimi?</a>'}`;
     }
     function pop(id) { document.querySelectorAll('.pop').forEach(p => p.id === id ? p.classList.toggle('open') : p.classList.remove('open')); }
     document.addEventListener('click', e => { if (!e.target.closest('.pop,.hs')) document.querySelectorAll('.pop.open').forEach(p => p.classList.remove('open')); });
@@ -136,6 +165,39 @@
         } catch (e) { return '❌ ' + String(e.message || e).split('\n').slice(-3).join('\n'); }
     }
 
+    const getAC = () => { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch {} return AC; };
+    function note(f, t, d, type, v) {
+        const o = AC.createOscillator(), g = AC.createGain(), n = AC.currentTime + t;
+        o.type = type; o.frequency.setValueAtTime(f, n); g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(v, n + .02); g.gain.exponentialRampToValueAtTime(0.0001, n + d);
+        o.connect(g); g.connect(AC.destination); o.start(n); o.stop(n + d + .05);
+    }
+    function playSound(ok) {
+        if (!getAC()) return;
+        try { if (ok) { [523, 659, 784, 1047, 1319].forEach((f, i) => note(f, i * .14, .5, 'triangle', .2)); note(1568, .85, 1, 'sine', .14); } else { [392, 370, 349, 311].forEach((f, i) => note(f, i * .3, .55, 'sawtooth', .09)); } } catch {}
+    }
+    function confetti() {
+        const c = document.createElement('div'); c.className = 'conf';
+        c.innerHTML = Array.from({ length: 60 }, () => `<i style="left:${Math.random() * 100}%;background:hsl(${Math.random() * 360},90%,60%);animation-duration:${2.5 + Math.random() * 3}s;animation-delay:${Math.random() * 1.5}s"></i>`).join('');
+        document.body.appendChild(c); setTimeout(() => c.remove(), 7500);
+    }
+    async function loadRank(me) {
+        const el = $('#rank'); if (!el) return;
+        try {
+            const r = await api('rating');
+            if (!r.allDone) { el.innerHTML = `<div class="rk wait">🏁 Reyting barcha studentlar tugatganda chiqadi<br><b>${r.done} / ${r.total}</b> tugatdi<br><small>Sahifa o‘zi yangilanadi</small></div>`; rankT = setTimeout(() => loadRank(me), 10000); return; }
+            let rk = 0;
+            el.innerHTML = `<div class="rk"><h3>🏅 Reyting</h3>` + r.list.map((x, i) => { if (!(i && x.score === r.list[i - 1].score)) rk = i + 1; return `<div class="rrow r${Math.min(rk, 4)} ${x.name === me ? 'me' : ''}"><span class="rn">${['', '🥇', '🥈', '🥉'][rk] || rk}</span><span class="rname">${esc(x.name)}</span><b>${x.score}/${x.total} · ${x.pct}%</b></div>`; }).join('') + '</div>';
+        } catch { rankT = setTimeout(() => loadRank(me), 15000); }
+    }
+    function updProg() {
+        const n = qs.filter(q => ans[q.id] !== undefined && String(ans[q.id]).trim() !== '').length;
+        if ($('#pg')) { $('#pg').textContent = n + ' / ' + qs.length + ' javob'; $('#pgb').style.width = (qs.length ? n / qs.length * 100 : 0) + '%'; }
+    }
+    async function setPass(l) {
+        const p = prompt('“' + l + '” uchun yangi parol (kamida 4 belgi):'); if (!p) return;
+        try { await api('m/setpass', 'POST', { login: l, password: p }); alert('✅ Parol o‘zgartirildi. Studentga yangi parolni ayting.'); } catch (e) { alert(e.message); }
+    }
+
     /* ---------- STUDENT ---------- */
     async function studentView() {
         $('#hot').innerHTML = '';
@@ -143,28 +205,29 @@
         if (d.submitted) return done(d);
         if (!d.started) {
             app.innerHTML = `<div class="center"><div class="card hero"><div class="big">📝</div><h2>Salom, ${esc(d.name)}!</h2>
-    <p>Testga <b>2 soat</b> beriladi. Boshlaganingizdan keyin vaqt to‘xtamaydi.</p>
-    <p style="text-align:left">• Boshqa oyna yoki tabga o‘tmang — o‘qituvchiga darhol xabar boradi.<br>• Skrinshot olish taqiqlangan.</p>
+    <div class="warnbox"><div class="wt">⚠️ DIQQAT — OGOHLANTIRISH!</div>• Testga faqat <u>2 soat</u> beriladi, boshlagach vaqt to‘xtamaydi.<br>• Boshqa oyna, tab yoki ilovaga o‘tish — <u>o‘qituvchiga darhol xabar</u> yuboradi.<br>• Skrinshot olish, nusxa ko‘chirish va chop etish taqiqlangan.<br>• Sahifani yopib yoki yangilab chiqib ketish ham qayd etiladi.</div>
     <div class="err" id="e"></div><button onclick="startTest()">▶️ Testni boshlash</button><button class="gray" onclick="logout()">Chiqish</button></div></div>`;
             return;
         }
         runTest(d);
     }
     async function startTest() {
+        getAC();
         try { const d = await api('start', 'POST'); try { await document.documentElement.requestFullscreen(); } catch {} runTest(d); }
         catch (e) { $('#e').textContent = e.message; }
     }
     function runTest(d) {
         qs = d.questions; ans = d.answers || {}; remaining = d.remaining; startGuard();
-        const L = { mcq: 'Test', text: 'Masala', code: '🐍 Python' };
-        app.innerHTML = `<div id="bar"><b>${esc(d.name)}</b><b id="t"></b></div><div class="wrap guard">` +
+        const L = { mcq: 'Test', text: 'Masala', code: '🐍 Python', practice: '🛠 Amaliy' };
+        app.innerHTML = `<div id="bar"><b>${esc(d.name)}</b><span id="pg"></span><b id="t"></b><div id="pgw"><div id="pgb"></div></div></div><div class="wrap guard">` +
             qs.map((q, i) => {
                 const t = q.type || 'mcq', h = `<div class="card"><b>${i + 1}. ${esc(q.text)}</b><span class="pill">${L[t]}</span><span class="pill">${q.pts || 1} ball</span>`;
                 if (t === 'text') return h + `<input placeholder="Javobingizni yozing" value="${esc(ans[q.id] ?? '')}" oninput="saveTxt(${i},this.value)"></div>`;
+                if (t === 'practice') return h + `<textarea rows="4" placeholder="Amaliy javobingizni yozing" oninput="saveTxt(${i},this.value)">${esc(ans[q.id] ?? '')}</textarea></div>`;
                 if (t === 'code') return h + `<textarea id="c${i}" rows="6" spellcheck="false" oninput="localStorage.setItem('d:${q.id}',this.value)">${esc(localStorage.getItem('d:' + q.id) ?? q.starter ?? '')}</textarea><button class="alt" onclick="runCode(${i})">▶ Run</button><pre class="out" id="o${i}">${esc(ans[q.id] ?? '')}</pre><small>Javob sifatida oxirgi Run natijasi yuboriladi.</small></div>`;
                 return h + q.options.map((o, j) => `<label class="opt ${ans[q.id] === j ? 'on' : ''}"><input type="radio" name="q${i}" ${ans[q.id] === j ? 'checked' : ''} onchange="pick(${i},${j},this)">${esc(o)}</label>`).join('') + '</div>';
-            }).join('') + `<button onclick="if(confirm('Testni yakunlaysizmi?'))finishTest()">✅ Yakunlash</button></div>`;
-        clearInterval(tick); tickFn(); tick = setInterval(tickFn, 1000);
+            }).join('') + `<button onclick="getAC();if(confirm('Testni yakunlaysizmi?'))finishTest()">✅ Yakunlash</button></div>`;
+        clearInterval(tick); tickFn(); tick = setInterval(tickFn, 1000); updProg();
     }
     function tickFn() {
         remaining -= 1000;
@@ -173,27 +236,31 @@
         if (t) { t.textContent = '⏱ ' + f(Math.floor(s / 3600)) + ':' + f(Math.floor(s % 3600 / 60)) + ':' + f(s % 60); t.className = remaining < 300000 ? 'warn' : ''; }
     }
     async function pick(i, j, el) {
-        ans[qs[i].id] = j;
+        ans[qs[i].id] = j; updProg();
         document.querySelectorAll(`input[name=q${i}]`).forEach(x => x.parentElement.classList.toggle('on', x === el));
         try { await api('answer', 'POST', { qid: qs[i].id, choice: j }); } catch {}
     }
-    function saveTxt(i, v) { ans[qs[i].id] = v; clearTimeout(tm); tm = setTimeout(() => api('answer', 'POST', { qid: qs[i].id, choice: v }).catch(() => {}), 500); }
+    function saveTxt(i, v) { ans[qs[i].id] = v; updProg(); clearTimeout(tm); tm = setTimeout(() => api('answer', 'POST', { qid: qs[i].id, choice: v }).catch(() => {}), 500); }
     async function runCode(i) {
         const o = $('#o' + i); o.textContent = '⏳ Python yuklanmoqda...';
-        const r = await runPy($('#c' + i).value); o.textContent = r; ans[qs[i].id] = r;
+        const r = await runPy($('#c' + i).value); o.textContent = r; ans[qs[i].id] = r; updProg();
         api('answer', 'POST', { qid: qs[i].id, choice: r }).catch(() => {});
     }
     async function finishTest() {
         clearInterval(tick); stopGuard();
-        await Promise.all(qs.filter(q => q.type === 'text').map(q => api('answer', 'POST', { qid: q.id, choice: String(ans[q.id] ?? '') }).catch(() => {})));
-        try { done(await api('submit', 'POST')); } catch { studentView(); }
+        await Promise.all(qs.filter(q => q.type === 'text' || q.type === 'practice').map(q => api('answer', 'POST', { qid: q.id, choice: String(ans[q.id] ?? '') }).catch(() => {})));
+        try { done(await api('submit', 'POST'), true); } catch { studentView(); }
     }
-    function done(d) {
-        stopGuard(); if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-        const p = d.total ? Math.round(d.score / d.total * 100) : 0;
-        app.innerHTML = `<div class="center"><div class="card hero"><div class="big">${p >= 70 ? '🏆' : p >= 40 ? '👍' : '📚'}</div><h2>Test yakunlandi</h2>
-  <p style="font-size:18px">To‘g‘ri javoblar: <b>${d.correct} / ${d.n}</b></p><p style="font-size:18px">Ball: <b>${d.score} / ${d.total}</b></p>
-  <p style="font-size:34px;margin:6px 0"><b>${p}%</b></p><button class="gray" onclick="logout()">Chiqish</button></div></div>`;
+    function done(d, fresh) {
+        stopGuard(); clearTimeout(rankT); if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        const p = d.total ? Math.round(d.score / d.total * 100) : 0, win = p >= 70;
+        app.innerHTML = `<div class="center"><div class="card hero wide ${win ? 'win' : 'meh'}"><div class="big">${win ? '🏆' : p ? '🙂' : '😕'}</div>
+  <h2>${win ? 'Tabriklaymiz, ' + esc(d.name) + '! 🎉' : 'Test yakunlandi'}</h2>
+  <p class="msg">${win ? 'Siz juda ham yaxshi natija qildingiz! Bu — sizning mehnatingiz, bilimingiz va qat‘iyatingiz samarasi. Ilmingiz ziyoda, yo‘lingiz ochiq bo‘lsin. Shunday davom eting! ✨' : p ? 'Sizning natijangiz yomon emas, lekin yaxshi ham emas. Biroz ko‘proq tayyorgarlik bilan keyingi safar albatta yaxshiroq bo‘ladi.' : 'Afsuski, bu safar to‘g‘ri javob chiqmadi. Mavzularni qaytadan ko‘rib chiqing.'}</p>
+  <div class="stats"><div><b>${d.correct}/${d.n}</b><small>To‘g‘ri</small></div><div><b>${d.score}/${d.total}</b><small>Ball</small></div><div><b>${p}%</b><small>Natija</small></div></div>
+  <div id="rank"></div><button class="gray" onclick="logout()">Chiqish</button></div></div>`;
+        if (fresh) { playSound(win); if (win) confetti(); }
+        loadRank(d.name);
     }
 
     /* anti-cheat */
@@ -231,7 +298,8 @@
     }
 
     /* ---------- SHARED (teacher/admin) ---------- */
-    const TYPE = { left: '🚪 testdan chiqib ketdi', screenshot: '📸 skrinshot urindi', copy: '⛔ taqiqlangan amal' };
+    const TYPE = { left: '🚪 testdan chiqib ketdi', screenshot: '📸 skrinshot urindi', copy: '⛔ taqiqlangan amal', forgot: '🔑 login/parolni unutdi' };
+    const LBL = { mcq: 'Test', text: 'Masala', code: 'Python', practice: 'Amaliy' };
     const tabsHtml = items => `<div class="tabs">` + items.map(([k, t], i) => `<button class="${i ? 'off' : ''}" data-t="${k}" onclick="tab('${k}')">${t}</button>`).join('') + `</div>`;
     function tab(k) {
         document.querySelectorAll('.tabs [data-t]').forEach(b => b.classList.toggle('off', b.dataset.t !== k));
@@ -257,10 +325,10 @@
         $('#hot').innerHTML = '';
         app.innerHTML = `<div class="wrap"><div class="card top"><h2>👩‍🏫 O‘qituvchi paneli</h2><button class="gray sm" onclick="logout()">Chiqish</button></div>
   ${tabsHtml([['live', '📡 Jonli'], ['qs', '📝 Savollar'], ['hist', '🕘 Tarix']])}
-  <section class="sec" id="s-live"><div class="card"><h2>🔔 Ogohlantirishlar</h2><div id="al">Hozircha yo‘q</div></div><div class="card"><h2>👥 Studentlar</h2><div id="st"></div></div></section>
+  <section class="sec" id="s-live"><div class="chips" id="chips"></div><div class="card"><h2>🔔 Ogohlantirishlar</h2><div id="al">Hozircha yo‘q</div></div><div class="card"><h2>👥 Studentlar</h2><div id="st"></div></div></section>
   <section class="sec" id="s-qs" hidden>
   <div class="card"><h2>➕ Savol qo‘shish</h2>
-  <select id="ty" onchange="tyChange()"><option value="mcq">📋 Test (variantli)</option><option value="text">✍️ Masala (variantsiz, matn javob)</option><option value="code">🐍 Python masala (kod natijasi)</option></select>
+  <select id="ty" onchange="tyChange()"><option value="mcq">📋 Test (variantli)</option><option value="text">✍️ Masala (variantsiz, matn javob)</option><option value="code">🐍 Python masala (kod natijasi)</option><option value="practice">🛠 Amaliy (har qanday javob to‘g‘ri)</option></select>
   <input id="qt" placeholder="Savol / masala matni">
   <div id="f-mcq">${[0, 1, 2, 3].map(i => `<label class="opt"><input type="radio" name="c" value="${i}" ${i ? '' : 'checked'}><input class="o" placeholder="${i + 1}-variant${i < 2 ? '' : ' (ixtiyoriy)'}"></label>`).join('')}<small>To‘g‘ri javob — doirachani belgilang.</small></div>
   <div id="f-ans" style="display:none"><input id="an" placeholder="To‘g‘ri javob (Python uchun — kutilgan natija)"><textarea id="st2" rows="3" placeholder="Boshlang‘ich kod (ixtiyoriy, faqat Python uchun)"></textarea></div>
@@ -271,27 +339,29 @@
   <div class="card"><h2>🐍 Python (Run)</h2><textarea id="pc" rows="5" spellcheck="false">print("Salom, dunyo!")</textarea><button class="alt" onclick="tRun()">▶ Run</button><pre class="out" id="po"></pre></div>
   <div class="card"><h2>📚 Savollar (<span id="qn">0</span>)</h2><div id="ql"></div></div></section>
   <section class="sec" id="s-hist" hidden></section></div>`;
-        since = 0; first = true; alerts = []; poll(); clearInterval(pollT); pollT = setInterval(poll, 5000);
+        since = 0; first = true; alerts = []; poll(); clearInterval(pollT); pollT = setInterval(poll, 7000);
     }
-    function tyChange() { const t = $('#ty').value; $('#f-mcq').style.display = t === 'mcq' ? '' : 'none'; $('#f-ans').style.display = t === 'mcq' ? 'none' : ''; }
+    function tyChange() { const t = $('#ty').value; $('#f-mcq').style.display = t === 'mcq' ? '' : 'none'; $('#f-ans').style.display = (t === 'text' || t === 'code') ? '' : 'none'; }
     async function tRun() { $('#po').textContent = '⏳ ...'; $('#po').textContent = await runPy($('#pc').value); }
     async function poll() {
         try {
             const d = await api('t/state?since=' + since);
             d.alerts.forEach(a => { since = Math.max(since, a.id); alerts.unshift(a); if (!first) { toast(a); beep(); } });
             first = false;
+            const cnt = k => d.students.filter(x => x.status === k).length;
+            $('#chips').innerHTML = `<span class="chip">👥 Jami: ${d.students.length}</span><span class="chip">✍️ Yechmoqda: ${cnt('running')}</span><span class="chip">✅ Tugatgan: ${cnt('done')}</span><span class="chip">⏳ Kutmoqda: ${cnt('waiting')}</span>`;
             if (alerts.length) $('#al').innerHTML = alerts.slice(0, 30).map(a => `<div class="al"><b>${esc(a.name)}</b> (${esc(a.login)}) ${TYPE[a.type] || ''}<br><small>${new Date(a.t).toLocaleTimeString()} — ${esc(a.detail)}</small></div>`).join('');
             const S = { waiting: '⏳ kutmoqda', running: '✍️ yechmoqda', done: '✅ tugatdi' };
             $('#st').innerHTML = d.students.length ? `<table><tr><th>Ism</th><th>Holat</th><th>Ball</th><th>Chiqish</th><th></th></tr>` + d.students.map(s =>
-                `<tr><td>${esc(s.name)}<br><small>${esc(s.login)}</small></td><td>${S[s.status]}${s.remaining != null ? '<br><small>' + Math.ceil(s.remaining / 60000) + ' daq qoldi</small>' : ''}</td><td>${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : '—'}</td><td>${s.left}</td><td>${s.status === 'waiting' ? '' : `<button class="sm" title="Qayta topshirtirish" onclick="retake('${esc(s.login)}')">🔁</button>`}</td></tr>`).join('') + '</table>' : 'Hali studentlar yo‘q';
+                `<tr><td>${esc(s.name)}<br><small>${esc(s.login)}</small></td><td>${S[s.status]}${s.remaining != null ? '<br><small>' + Math.ceil(s.remaining / 60000) + ' daq qoldi</small>' : ''}</td><td>${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : '—'}</td><td>${s.left}</td><td><button class="sm" title="Yangi parol berish" onclick="setPass('${esc(s.login)}')">🔑</button> ${s.status === 'waiting' ? '' : `<button class="sm" title="Qayta topshirtirish" onclick="retake('${esc(s.login)}')">🔁</button>`}</td></tr>`).join('') + '</table>' : 'Hali studentlar yo‘q';
             $('#qn').textContent = d.questions.length;
-            $('#ql').innerHTML = d.questions.map((q, i) => { const t = q.type || 'mcq'; return `<div class="al q"><b>${i + 1}. ${esc(q.text)}</b><span class="pill">${t === 'mcq' ? 'Test' : t === 'text' ? 'Masala' : 'Python'}</span><span class="pill">${q.pts || 1} ball</span>` + (t === 'mcq' ? q.options.map((o, j) => `<div>${j === q.correct ? '✅' : '▫️'} ${esc(o)}</div>`).join('') : `<div>✅ ${esc(q.answer)}</div>`) + `<button class="red" onclick="delQ('${q.id}')">O‘chirish</button></div>`; }).join('');
+            $('#ql').innerHTML = d.questions.map((q, i) => { const t = q.type || 'mcq'; return `<div class="al q"><b>${i + 1}. ${esc(q.text)}</b><span class="pill">${LBL[t]}</span><span class="pill">${q.pts || 1} ball</span>` + (t === 'mcq' ? q.options.map((o, j) => `<div>${j === q.correct ? '✅' : '▫️'} ${esc(o)}</div>`).join('') : `<div>✅ ${t === 'practice' ? 'Har qanday javob to‘g‘ri' : esc(q.answer)}</div>`) + `<button class="red" onclick="delQ('${q.id}')">O‘chirish</button></div>`; }).join('');
         } catch {}
     }
     async function addQ() {
         const ty = $('#ty').value, o = { type: ty, text: $('#qt').value, pts: $('#pt').value };
         if (ty === 'mcq') { const all = [...document.querySelectorAll('.o')].map(x => x.value.trim()), idx = Number(document.querySelector('input[name=c]:checked').value); o.options = all.filter(Boolean); o.correct = o.options.indexOf(all[idx]); }
-        else { o.answer = $('#an').value; o.starter = $('#st2').value; }
+        else if (ty !== 'practice') { o.answer = $('#an').value; o.starter = $('#st2').value; }
         try {
             await api('t/question', 'POST', o);
             ['#qt', '#pt', '#an', '#st2'].forEach(x => $(x).value = ''); document.querySelectorAll('.o').forEach(x => x.value = ''); $('#e').textContent = ''; poll();
@@ -314,7 +384,7 @@
         try {
             const d = await api('a/state'), S = { waiting: '⏳', running: '✍️', done: '✅' };
             $('#s-ast').innerHTML = `<div class="card"><h2>👩‍🏫 O‘qituvchi o‘rni</h2><p>${d.teacherBusy ? '🔴 Band — o‘qituvchi kirgan' : '🟢 Bo‘sh'}</p>${d.teacherBusy ? '<button class="red" onclick="rel()">O‘qituvchini chiqarib, o‘rinni bo‘shatish</button>' : ''}</div>
-    <div class="card"><h2>👥 Studentlar (${d.students.length})</h2>` + (d.students.map(s => `<div class="al q"><b>${esc(s.name)}</b> <small>(${esc(s.login)})</small> ${S[s.status]} ${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : ''} · chiqish: ${s.left}<br>
+    <div class="card"><h2>👥 Studentlar (${d.students.length})</h2>` + (d.students.map(s => `<div class="al q"><b>${esc(s.name)}</b> <small>(${esc(s.login)})</small> ${S[s.status]} ${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : ''} · chiqish: ${s.left}<br><button class="sm" onclick="setPass('${esc(s.login)}')">🔑 Parol</button>
       ${s.status !== 'waiting' ? `<button class="sm" onclick="retake('${esc(s.login)}')">🔁 Qayta</button> ` : ''}<button class="red" onclick="delSt('${esc(s.login)}')">🗑 O‘chirish</button></div>`).join('') || 'Hali studentlar yo‘q') + '</div>';
         } catch {}
     }
