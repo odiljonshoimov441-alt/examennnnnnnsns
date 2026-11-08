@@ -261,7 +261,7 @@
                     return `<div class="rrow r${Math.min(rk, 4)}"><span class="rn">${['', '🥇', '🥈', '🥉'][rk] || rk}</span><span class="rname">${esc(x.name)}<br><small>${x.correct}/${x.n} to‘g‘ri · ${x.score}/${x.total} ball · ${'★'.repeat(st)}${'☆'.repeat(5 - st)}</small></span><b>${x.pct}%</b></div>`; }).join('') || 'Hali hech kim testni tugatmagan') + '</div>';
         } catch (e) { $('#s-rate').innerHTML = `<div class="card">${esc(e.message)}</div>`; }
     }
-    function ringAnim(p, n) { const r = $('#ring'), t = $('#rp'); let x = 0; const step = () => { x = Math.min(p, x + Math.max(1, p / 40)); r.style.setProperty('--p', x); t.textContent = Math.round(x * n / 100) + '/' + n; if (x < p) requestAnimationFrame(step); }; step(); }
+    function ringAnim(p) { const r = $('#ring'), t = $('#rp'); let x = 0; const step = () => { x = Math.min(p, x + Math.max(1, p / 40)); r.style.setProperty('--p', x); t.textContent = Math.round(x) + '%'; if (x < p) requestAnimationFrame(step); }; step(); }
     function setOut(el, t) { el.textContent = t; el.classList.toggle('bad', t.startsWith('❌')); }
     /* ---- PyCharm-uslubidagi Python muharriri ---- */
     const PK = new Set('False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield'.split(' '));
@@ -388,14 +388,14 @@
         stopGuard(); if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
         const p = d.total ? Math.round(d.score / d.total * 100) : 0, win = p >= 70, c = win ? '#16a34a' : p >= 40 ? '#f97316' : '#ef4444', fr = d.n ? d.correct / d.n * 100 : 0;
         app.innerHTML = `<div class="center"><div class="card hero wide ${win ? 'win' : 'low'}">
-  <div class="ring" id="ring" style="--c:${c}"><b id="rp">0/${d.n}</b></div>
+  <div class="ring" id="ring" style="--c:${c}"><b id="rp">0%</b></div>
   <h2>${win ? 'Tabriklaymiz, ' + esc(d.name) + '! 🎉' : p ? 'Yaxshi urinish! 💪' : 'Hali hammasi oldinda! 🌱'}</h2>
   <p class="msg">${win ? 'Siz juda ham yaxshi natija qildingiz! Bu — sizning mehnatingiz, bilimingiz va qat‘iyatingiz samarasi. Ilmingiz ziyoda, yo‘lingiz ochiq bo‘lsin. Shunday davom eting! ✨' : p ? 'Sizning natijangiz yomon emas, lekin yaxshi ham emas.' : 'Afsuski, bu safar to‘g‘ri javob chiqmadi.'}</p>
   ${win ? '' : '<div class="tip">💡 Xato — o‘rganishning bir qismi. Mavzularni takrorlang, o‘qituvchidan so‘rang — keyingi safar albatta yaxshiroq bo‘ladi!</div>'}
   <div class="stats"><div><b>${d.correct}/${d.n}</b><small>To‘g‘ri javoblar</small></div><div><b>${d.score}/${d.total}</b><small>Ball</small></div></div>
   <div class="sbox"><div class="sbt">⭐ Test haqida baho bering</div><div class="stars">${[1, 2, 3, 4, 5].map(n => `<span data-n="${n}" class="${n <= (d.stars || 0) ? 'on' : ''}" onclick="rate(${n})">★</span>`).join('')}</div><div class="smsg" id="sm"></div></div>
   <button class="gray" onclick="logout()">Chiqish</button></div></div>`;
-        ringAnim(fr, d.n);
+        ringAnim(p);
         if (fresh) { playSound(win); if (win) fireworks(); }
     }
 
