@@ -39,6 +39,9 @@
         .bgs{display:flex;gap:10px;justify-content:center;margin-top:16px}.bgs i{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 5px #0003;transition:.2s}.bgs i:hover{transform:scale(1.25)}
         .top{display:flex;justify-content:space-between;align-items:center}.top h2{margin:0}
         .hs{color:#fff;position:fixed;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#ffffff66;font-size:20px;cursor:pointer;opacity:.28;z-index:30;transition:.3s}.hs:hover{opacity:.7}
+        .hero{position:relative;z-index:40;cursor:grab;touch-action:none}.hero.drag{cursor:grabbing;box-shadow:0 24px 70px #000a;transition:none}
+        .hs.ad{left:50%;top:50%;translate:-50% -50%;z-index:10;opacity:.55}.hs.ad:hover{opacity:.9}
+        .pop.ad{left:50%;top:calc(50% + 40px);z-index:50;transform:translate(-50%,10px) scale(.95)}.pop.ad.open{transform:translateX(-50%)}
         .hs.tl{top:12px;left:12px}.hs.br{bottom:12px;right:12px}
         .pop{position:fixed;width:min(300px,calc(100vw - 24px));background:#fff;border-radius:22px;padding:16px;box-shadow:0 12px 40px #0003;z-index:31;opacity:0;pointer-events:none;transition:.3s}
         .pop.tl{top:66px;left:12px;transform:translate(-20px,-10px) scale(.95)}.pop.br{bottom:66px;right:12px;transform:translate(20px,10px) scale(.95)}
@@ -78,7 +81,7 @@
         }
     }
     function logout(silent) {
-        if (role === 'teacher' && token && !silent) api('logout', 'POST').catch(() => {});
+        if ((role === 'teacher' || role === 'admin') && token && !silent) api('logout', 'POST').catch(() => {});
         token = role = null; localStorage.removeItem('token'); localStorage.removeItem('role');
         stopGuard(); clearInterval(tick); clearInterval(pollT); home();
     }
@@ -86,11 +89,24 @@
     /* ---------- HOME ---------- */
     const loginForm = r => `<b>${r === 'teacher' ? '👩‍🏫 O‘qituvchi' : '🛡️ Admin'}</b><input id="${r}-l" placeholder="Login" autocapitalize="none"><input id="${r}-p" type="password" placeholder="Parol" onkeydown="if(event.key==='Enter')submitAuth('${r}')"><div class="err" id="${r}-e"></div><button onclick="submitAuth('${r}')">Kirish</button>`;
     async function home() {
-        let busy = false; try { busy = (await api('status')).teacherBusy; } catch {}
+        let busy = false, abusy = false; try { const st = await api('status'); busy = st.teacherBusy; abusy = st.adminBusy; } catch {}
         app.innerHTML = `<div class="center"><div class="card hero"><div class="big">🎓</div><h1>Online imtihon</h1><p class="sub">Student sifatida kiring yoki ro‘yxatdan o‘ting</p>
   <div class="tabs"><button id="t1" onclick="sm('login')">Kirish</button><button id="t2" class="off" onclick="sm('register')">Ro‘yxatdan o‘tish</button></div><div id="sf"></div></div></div>`;
         sm('login');
-        $('#hot').innerHTML = (busy ? '' : `<div class="hs tl" onclick="pop('ptl')">👩‍🏫</div><div class="pop tl" id="ptl">${loginForm('teacher')}</div>`) + `<div class="hs br" onclick="pop('pbr')">🛡️</div><div class="pop br" id="pbr">${loginForm('admin')}</div>`;
+        $('#hot').innerHTML = (busy ? '' : `<div class="hs tl" onclick="pop('ptl')">👩‍🏫</div><div class="pop tl" id="ptl">${loginForm('teacher')}</div>`) + (abusy ? '' : `<div class="hs ad" onclick="pop('pad')">🛡️</div><div class="pop ad" id="pad">${loginForm('admin')}</div>`);
+        drag();
+    }
+    function drag() {
+        const el = $('.hero'); let sx, sy, ox = 0, oy = 0, on = false;
+        el.addEventListener('pointerdown', e => { if (e.target.closest('input,button,select,textarea,label')) return; on = true; sx = e.clientX - ox; sy = e.clientY - oy; el.setPointerCapture(e.pointerId); el.classList.add('drag'); });
+        el.addEventListener('pointermove', e => {
+            if (!on) return;
+            const mx = innerWidth / 2 + el.offsetWidth / 2 - 60, my = innerHeight / 2 + el.offsetHeight / 2 - 60;
+            ox = Math.max(-mx, Math.min(mx, e.clientX - sx)); oy = Math.max(-my, Math.min(my, e.clientY - sy));
+            el.style.translate = ox + 'px ' + oy + 'px';
+        });
+        const end = () => { on = false; el.classList.remove('drag'); };
+        el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
     }
     function sm(m) {
         const reg = m === 'register';
@@ -292,7 +308,7 @@
         $('#hot').innerHTML = '';
         app.innerHTML = `<div class="wrap"><div class="card top"><h2>🛡️ Admin paneli</h2><button class="gray sm" onclick="logout()">Chiqish</button></div>
   ${tabsHtml([['ast', '⚙️ Boshqaruv'], ['hist', '🕘 Tarix']])}<section class="sec" id="s-ast"></section><section class="sec" id="s-hist" hidden></section></div>`;
-        adminState(); clearInterval(pollT); pollT = setInterval(() => { const s = $('#s-ast'); if (s && !s.hidden) adminState(); }, 8000);
+        adminState(); clearInterval(pollT); pollT = setInterval(adminState, 8000);
     }
     async function adminState() {
         try {

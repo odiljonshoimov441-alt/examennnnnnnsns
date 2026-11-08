@@ -41,6 +41,10 @@ async function view(s) {
   };
 }
 
+const ALIVE = 15 * 60 * 1000; // admin: 15 daqiqa faolsizlikdan keyin o‘rin bo‘shaydi
+const adminBusy = async () => { const a = await get("alock"); return !!a && Date.now() - a.t < ALIVE; };
+const adminOk = async tok => { const a = await get("alock"); if (!a || a.token !== tok || Date.now() - a.t > ALIVE) return false; await set("alock", { token: tok, t: Date.now() }); return true; };
+
 async function studentsList() {
   return Promise.all((await list("s:")).blobs.map(async b => {
     const s = await get(b.key); await check(s);
@@ -71,15 +75,18 @@ export default async (req) => {
       else if (body.role === "admin") ok = login === A_USER.toLowerCase() && same(sha(pw), sha(A_PASS));
       else if (/^[a-z0-9_.@-]{3,30}$/.test(login)) { const s = await get("s:" + login); ok = !!s && same(hash(pw, s.salt), s.hash); }
       if (!ok) return send(401, { error: "Login yoki parol noto‘g‘ri" });
+      if (body.role === "admin" && await adminBusy()) return send(403, { error: "Admin bo‘limi band. Faqat 1 kishi kira oladi." });
       if (body.role === "teacher" && await get("tlock")) return send(403, { error: "O‘qituvchi bo‘limi band. Faqat 1 kishi kira oladi." });
       const token = rid(), r = ["teacher", "admin"].includes(body.role) ? body.role : "student";
       await set("sess:" + token, { role: r, login });
       if (r === "teacher") await set("tlock", { token });
+      if (r === "admin") await set("alock", { token, t: Date.now() });
       return send(200, { token, role: r });
     }
-    if (P === "/api/status") return send(200, { teacherBusy: !!(await get("tlock")) });
+    if (P === "/api/status") return send(200, { teacherBusy: !!(await get("tlock")), adminBusy: await adminBusy() });
     const tok = req.headers.get("x-token") || body.token;
     const ses = typeof tok === "string" && /^[a-f0-9]{32}$/.test(tok) ? await get("sess:" + tok) : null;
+    if (P === "/api/logout" && ses && ses.role === "admin") { const a = await get("alock"); if (a && a.token === tok) await store.delete("alock"); return send(200, { ok: true }); }
     if (P === "/api/logout") { if (ses && ses.role === "teacher") { const lk = await get("tlock"); if (lk && lk.token === tok) await store.delete("tlock"); } return send(200, { ok: true }); }
     if (!ses) return send(401, { error: "Qaytadan kiring" });
 
@@ -149,7 +156,8 @@ export default async (req) => {
         return send(200, { ok: true });
       }
     }
-    if (ses.role === "teacher" || ses.role === "admin") {
+    if ((ses.role === "teacher" || ses.role === "admin") && P.startsWith("/api/m/")) {
+      if (ses.role === "admin" && !(await adminOk(tok))) return send(401, { error: "Sessiya tugagan" });
       if (ses.role === "teacher") { const lk = await get("tlock"); if (!lk || lk.token !== tok) return send(401, { error: "Sessiya tugagan" }); }
       if (P === "/api/m/history" && M === "GET") {
         const tail = async pre => (await Promise.all((await list(pre)).blobs.map(b => b.key).slice(-200).map(k => get(k)))).filter(Boolean).reverse();
@@ -162,6 +170,7 @@ export default async (req) => {
       }
     }
     if (ses.role === "admin") {
+      if (!(await adminOk(tok))) return send(401, { error: "Sessiya tugagan" });
       if (P === "/api/a/state" && M === "GET") return send(200, { students: await studentsList(), teacherBusy: !!(await get("tlock")) });
       if (P === "/api/a/release" && M === "POST") { await store.delete("tlock"); return send(200, { ok: true }); }
       if (P === "/api/a/clear" && M === "POST") { for (const pre of ["r:", "a:"]) for (const b of (await list(pre)).blobs) await store.delete(b.key); return send(200, { ok: true }); }
