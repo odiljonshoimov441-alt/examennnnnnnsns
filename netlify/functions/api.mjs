@@ -48,6 +48,21 @@ const ALIVE = 15 * 60 * 1000; // admin: 15 daqiqa faolsizlikdan keyin o‘rin bo
 const adminBusy = async () => { const a = await get("alock"); return !!a && Date.now() - a.t < ALIVE; };
 const adminOk = async tok => { const a = await get("alock"); if (!a || a.token !== tok || Date.now() - a.t > ALIVE) return false; if (Date.now() - a.t > 60000) await set("alock", { token: tok, t: Date.now() }); return true; };
 
+async function rescoreAll() {
+  const qs = (await get("q")) || [], rk = {};
+  for (const b of (await list("r:")).blobs) rk[b.key.slice(b.key.indexOf("-") + 1)] = b.key;
+  const keys = (await list("s:")).blobs.map(b => b.key);
+  for (let i = 0; i < keys.length; i += 8) {
+    await Promise.all(keys.slice(i, i + 8).map(async k => {
+      const s = await get(k); if (!s || !s.submitted) return;
+      const ans = (await get("ans:" + s.login)) || {}, good = qs.filter(q => ok(q, ans[q.id]));
+      s.n = qs.length; s.correct = good.length; s.total = qs.reduce((a, q) => a + (q.pts || 1), 0); s.score = good.reduce((a, q) => a + (q.pts || 1), 0);
+      await set(k, s);
+      const rkey = rk[s.login]; if (rkey) { const r = await get(rkey); if (r) await set(rkey, { ...r, score: s.score, total: s.total, correct: s.correct, n: s.n }); }
+    }));
+  }
+}
+
 async function studentsList() {
   return Promise.all((await list("s:")).blobs.map(async b => {
     const [s, left] = await Promise.all([get(b.key), get("l:" + b.key.slice(2))]); await check(s);
@@ -172,9 +187,29 @@ export default async (req) => {
       if (P === "/api/t/points" && M === "POST") {
         const f = Number(body.from), t = Number(body.to), pts = Math.min(100, Math.max(1, Math.round(Number(body.points) || 1)));
         if (!(f >= 1 && t >= f)) return send(400, { error: "Oraliqni to‘g‘ri kiriting (masalan 1 dan 10 gacha)" });
-        const qs = (await get("q")) || []; qs.forEach((q, i) => { if (i + 1 >= f && i + 1 <= t) q.pts = pts; }); await setQ(qs);
+        const qs = (await get("q")) || []; qs.forEach((q, i) => { if (i + 1 >= f && i + 1 <= t) q.pts = pts; }); await setQ(qs); await rescoreAll();
         return send(200, { ok: true });
       }
+      if (P === "/api/t/correct" && M === "POST") {
+        const qs = (await get("q")) || [], q = qs.find(x => x.id === body.id), c = Number(body.correct);
+        if (!q || (q.type || "mcq") !== "mcq" || !(c >= 0 && c < q.options.length)) return send(400, { error: "Savol yoki variant topilmadi" });
+        q.correct = c; await setQ(qs); await rescoreAll(); return send(200, { ok: true });
+      }
+      if (P === "/api/t/import" && M === "POST") {
+        const qs = (await get("q")) || []; let added = 0;
+        for (const x of (Array.isArray(body.questions) ? body.questions : []).slice(0, 200)) {
+          const type = ["mcq", "text", "code", "practice"].includes(x.type) ? x.type : "mcq", text = String(x.text || "").trim().slice(0, 1000);
+          if (!text || qs.some(q => q.text === text)) continue;
+          const q = { id: rid().slice(0, 8), type, text, pts: Math.min(100, Math.max(1, Math.round(Number(x.pts) || 1))) };
+          if (type === "mcq") {
+            q.options = (Array.isArray(x.options) ? x.options : []).map(o => String(o).trim().slice(0, 200)).filter(Boolean).slice(0, 6); q.correct = Number(x.correct);
+            if (q.options.length < 2 || !(q.correct >= 0 && q.correct < q.options.length)) continue;
+          } else if (type !== "practice") { q.answer = String(x.answer || "").trim().slice(0, 1000); if (!q.answer) continue; }
+          qs.push(q); added++;
+        }
+        await setQ(qs); return send(200, { ok: true, added });
+      }
+      if (P === "/api/t/clear" && M === "POST") { await setQ([]); return send(200, { ok: true }); }
       if (P.startsWith("/api/t/question/") && M === "DELETE") {
         const id = P.split("/").pop();
         await setQ(((await get("q")) || []).filter(q => q.id !== id));
