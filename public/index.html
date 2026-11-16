@@ -94,6 +94,23 @@
         .stars.shake{animation:shake .5s}@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
         .smsg{min-height:26px;font-weight:700;margin-top:6px;animation:up .3s}.smsg.bad{color:#dc2626}.smsg.good{color:#15803d;font-size:18px}
         @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+        /* Netlify badge ni to'liq yashirish */
+        iframe[id*="netlify"],
+        div:has(> a[href*="netlify.com"]),
+        a[href*="netlify.com"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        #rot{display:none;position:fixed;top:60px;left:8px;right:8px;z-index:8;background:#fbbf24;color:#451a03;padding:10px 14px;border-radius:14px;font-weight:700;text-align:center;box-shadow:0 6px 20px #0005}
+        #rot span{display:inline-block;animation:turn 2s ease-in-out infinite}@keyframes turn{40%,70%{transform:rotate(-90deg)}}
+        @media (orientation:portrait) and (pointer:coarse){body.test #rot{display:block}}
+        body.test #foot{display:none}
+        .mdl{position:fixed;inset:0;background:#000a;z-index:90;display:flex;justify-content:center;overflow:auto;padding:16px;animation:fadeIn .25s}
+        .mdl .box{background:#fff;border-radius:22px;max-width:720px;width:100%;padding:18px;margin:auto;animation:up .35s}
+        .ao{padding:7px 11px;border-radius:10px;margin:4px 0;background:#f1f5f9;font-size:14px}.ao.ok{background:#dcfce7}.ao.no{background:#fee2e2}.ao.rt{background:#ecfdf5;border:1px dashed #22c55e}
+        .ga pre{background:#0f172a;color:#e2e8f0;padding:8px 10px;border-radius:10px;white-space:pre-wrap;margin:4px 0;font-size:13px}
         @media print{body{display:none!important}}
     </style>
 </head>
@@ -102,7 +119,8 @@
 <div id="cover"><div><div class="big">⚠️</div><h2>Test yashirildi</h2><p>Siz test oynasidan chiqdingiz. O‘qituvchiga xabar yuborildi.</p><button onclick="resume()">Testga qaytish</button></div></div>
 <div id="app"></div>
 <div id="hot"></div>
-<div id="foot"><span class="fl"></span>💻 <span>Developer by</span> <b>Evolution Student</b><span class="fl"></span></div>
+<div id="rot"><span>📱</span> Telefonni yotiq (gorizontal) holatga buring — test qulayroq bo‘ladi</div>
+<div id="foot"><span class="fl"></span>💻 <span>Developer by</span> <b>Evolution Student shoimovv</b><span class="fl"></span></div>
 <script>
     const $ = s => document.querySelector(s), app = $('#app');
     const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -223,6 +241,11 @@
     }
 
     const SEED = [{"type": "mcq", "text": "Matn yozish paytida bitta katta harf yozish uchun harf bilan birga qaysi tugma bosib turiladi?", "options": ["Caps Lock", "Space", "Shift", "Ctrl"], "correct": 2}, {"type": "mcq", "text": "Klaviaturaga qaramasdan, o'nta barmoq bilan tez yozish metodikasi nima deb nomlanadi?", "options": ["Fast Typing", "Blind Typing", "Double Clicking", "Coding"], "correct": 1}, {"type": "mcq", "text": "Quyidagilardan qaysi biri kompyuterning kirish qurilmasi hisoblanadi?", "options": ["Monitor", "Printer", "Klaviatura", "Kolonka"], "correct": 2}, {"type": "mcq", "text": "Kompyuterda nusxalangan matn yoki faylni kerakli joyga joylashtirish uchun qaysi klavishlar kombinatsiyasi ishlatiladi?", "options": ["Ctrl + C", "Ctrl + X", "Ctrl + V", "Ctrl + Z"], "correct": 2}, {"type": "mcq", "text": "Windows tizimida fayl yoki papkani butunlay o'chirib yuborish uchun qaysi tugmalar birgalikda bosiladi?", "options": ["Ctrl + Delete", "Shift + Delete", "Alt + Delete", "Ctrl + X"], "correct": 1}, {"type": "mcq", "text": "Windows operatsion tizimida \"Provodnik\" (File Explorer) oynasini tezkor ochish tugmasi qaysi?", "options": ["Win + E", "Win + D", "Win + R", "Win + L"], "correct": 0}, {"type": "mcq", "text": "Windows operatsion tizimida kompyuterni tezda qulflash uchun qaysi tezkor tugmalar bosiladi?", "options": ["Win + L", "Win + D", "Ctrl + Alt + Delete", "Alt + F4"], "correct": 0}, {"type": "mcq", "text": "Brauzerlarda maxfiylikni ta'minlash, kesh va ko'rishlar tarixini saqlab qolmaslik uchun ochiladigan maxsus oyna qanday nomlanadi?", "options": ["Yangi xatcho'p", "Inkognito oynasi", "Sozlamalar", "Yuklanmalar"], "correct": 1}, {"type": "mcq", "text": "Kompyuterdagi juda katta hajmli fayl yoki papkalarni internet orqali jo'natish yoki diskda joy tejash uchun ularni siqib, hajmini kichraytiruvchi dasturlar", "options": ["Utilita", "Brauzer", "Arxivatorlar", "Drayverlar"], "correct": 2}, {"type": "mcq", "text": "Internetga ulanish va veb-sahifalarni ko'rish uchun mo'ljallangan dasturlar", "options": ["Antivirus", "Sayt", "Brauzer", "Qidiruv tizimi"], "correct": 2}, {"type": "mcq", "text": "1 Bayt nechta Bit ga teng?", "options": ["2 bit", "4 bit", "8 bit", "1024 bit"], "correct": 2}, {"type": "mcq", "text": "Axborotni vaqtincha saqlaydigan, kompyuter o'chirilganda ichidagi ma'lumotlar o'chib ketadigan xotira qaysi?", "options": ["HDD", "SSD", "RAM", "Fleshka"], "correct": 2}, {"type": "mcq", "text": "Qaysi xotira qurilmasi mexanik aylanuvchi disklardan iborat bo'lmagani uchun juda tez ishlaydi va zamonaviy kompyuterlarda ko'p qo'llaniladi?", "options": ["HDD", "SSD", "CD-ROM", "Floppy disk"], "correct": 1}, {"type": "mcq", "text": "Kompyuterning barcha qismlarini boshqaradigan va buyruqlarni bajaradigan \"miya\"si nima?", "options": ["Qattiq disk", "Tezkor xotira", "Markaziy protsessor", "Monitor"], "correct": 2}, {"type": "mcq", "text": "Har qanday veb-sayt manzili boshida turadigan va sayt bilan foydalanuvchi o'rtasidagi ma'lumotlar almashinuvini to'liq kodlab, xavfsizlikni ta'minlaydigan protokol qaysi?", "options": ["HTTP", "HTTPS", "FTP", "WEB"], "correct": 1}, {"type": "mcq", "text": "Kompyuter tizimlarining asosiy platasi bo'lib, unga protsessor, operativ xotira, videokarta kabi barcha muhim qurilmalar ulanadigan \"ona plata\" qaysi?", "options": ["Hard Drive", "Motherboard", "Power Supply", "Cooler"], "correct": 1}, {"type": "mcq", "text": "Kompyuterdagi rasm, video, o'yinlar va har qanday grafik tasvirlarni monitor ekraniga chiqarishga javobgar bo'lgan qurilma qaysi?", "options": ["Ovoz kartasi", "Videokarta", "Protsessor", "Tarmoq kartasi"], "correct": 1}, {"type": "mcq", "text": "URL nima?", "options": ["Kompyuter virusi", "Veb-sahifaning internetdagi aniq manzili", "Internet kabeli turi", "Kompyuter tezligi"], "correct": 1}, {"type": "mcq", "text": "Veb-saytlarning tashqi ko'rinishi va foydalanuvchiga ko'rinadigan qismini yaratuvchi IT sohasi qanday nomlanadi?", "options": ["Backend dasturlash", "Frontend dasturlash", "Ma'lumotlar bazasi", "Tizim administratorligi"], "correct": 1}, {"type": "mcq", "text": "IP-manzil nima?", "options": ["Kompyuterning markasi va modeli", "Internetga ulangan har bir qurilmaning takrorlanmas maxsus raqamli manzili", "Saytdagi rasmlarning nomi", "Elektron pochta paroli"], "correct": 1}, {"type": "mcq", "text": "Kompyuter operatsion tizimi yoki dasturlardagi xatoliklar, kamchiliklar hamda zaifliklar dasturlash tilida nima deb ataladi?", "options": ["Drayver", "Bug", "Kesh", "Spam"], "correct": 1}, {"type": "mcq", "text": "Faqatgina ruxsat berilgan foydalanuvchilar va qurilmalar tarmoqqa ulanishini ta'minlovchi, zararli trafikni to'suvchi \"tarmoq devori\" nima deb ataladi?", "options": ["Antivirus", "Firewall", "Router", "Switch"], "correct": 1}, {"type": "mcq", "text": "Foydalanuvchini chalg'itib, soxta saytlar yoki elektron xatlar orqali uning bank plastik karta ma'lumotlari yoki parollarini o'g'irlashga qaratilgan kiberhujum turi qanday nomlanadi?", "options": ["DDoS hujum", "Fishing", "Spam", "Brute Force"], "correct": 1}, {"type": "mcq", "text": "Sun'iy intellekt deganda nima tushuniladi?", "options": ["Kompyuterning elektr energiyasini tejash rejimi", "Inson ongiga xos fikrlash, o'rganish va qaror qabul qilish qobiliyatini kompyuterda taqlid qilish texnologiyasi", "Oddiy matn muharriri", "Faqat robotlar yasaydigan zavod"], "correct": 1}, {"type": "mcq", "text": "Mashinali o'rganish nima?", "options": ["Kompyuterlarni zavodda yig'ish jarayoni", "Tizimning katta hajmdagi ma'lumotlar orqali o'zi mustaqil o'rganishi va tajriba orttirishi", "Klaviaturada tez yozishni o'rgatuvchi dastur", "Antivirus turi"], "correct": 1}, {"type": "mcq", "text": "Quyidagi operatsion tizimlardan qaysi biri ochiq kodli hisoblanadi, ya'ni uning kodlarini istalgan odam ko'rishi, o'zgartirishi va bepul yuklab olishi mumkin?", "options": ["Windows 11", "macOS", "Linux", "iOS"], "correct": 2}, {"type": "mcq", "text": "Xeshlash nima?", "options": ["Har qanday hajmdagi ma'lumotni ma'lum bir uzunlikdagi maxsus ramziy kodga o'tkazish jarayoni", "Rasmlarni internetdan tezkor yuklab olish usuli", "Kompyuter diskini tozalash dasturi", "Parollarni hammaga ko'rsatish tizimi"], "correct": 0}, {"type": "mcq", "text": "Xesh funksiyalarining eng muhim xususiyatlaridan biri nima?", "options": ["Xesh koddan asl matnni osongina qayta tiklab bo'ladi", "Bir xil matn har safar har xil xesh kod beradi", "Bir tomonlama bo'ladi", "Faqat sonlardan tashkil topadi"], "correct": 2}, {"type": "mcq", "text": "Quyidagilardan qaysi biri mashhur xesh algoritmlaridan biri hisoblanadi?", "options": ["HTTP", "SHA-256", "CPU", "RAM"], "correct": 1}, {"type": "mcq", "text": "Kiberxavfsizlikda parollar ma'lumotlar bazasida qanday ko'rinishda saqlanishi eng xavfsiz hisoblanadi?", "options": ["Oddiy matn ko'rinishida", "Rasm ko'rinishida", "Xeshlangan ko'rinishda", "Audio fayl ko'rinishida"], "correct": 2}, {"type": "practice", "text": "IT sohalari haqida ma'lumot bering?"}, {"type": "practice", "text": "Kompyuter nima?"}, {"type": "practice", "text": "Windows ishlatish haqida nimalarni bilasiz?"}, {"type": "practice", "text": "0 va 1 sanoq sistemasi haqida ma'lumot bering?"}, {"type": "practice", "text": "CPU nima?"}, {"type": "practice", "text": "Qattiq disk nima?"}, {"type": "practice", "text": "Qattiq disk va CPU ning farqi nimada?"}, {"type": "practice", "text": "Internet nima?"}, {"type": "practice", "text": "Hashing nima?"}, {"type": "practice", "text": "Sun'iy intellekt haqida ma'lumot bering?"}];
+    const isPhone = () => matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 700;
+    const lockLand = async () => { try { if (isPhone() && screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape'); } catch {} };
+    /* Netlify "Powered by" belgisini DOM dan ham olib tashlash */
+    const killBadge = () => [...document.body.children].forEach(n => { if (/netlify/i.test((n.id || '') + ' ' + (n.className && n.className.baseVal === undefined ? n.className : '') + ' ' + (n.getAttribute('src') || '')) && !['app', 'hot', 'foot', 'toast', 'cover', 'rot'].includes(n.id)) n.remove(); });
+    new MutationObserver(killBadge).observe(document.body, { childList: true }); killBadge(); setInterval(killBadge, 3000);
     const DEF_PY = 'print("UmidTeacher")';
     new MutationObserver(() => { app.classList.remove('view'); void app.offsetWidth; app.classList.add('view'); }).observe(app, { childList: true });
     function boom() {
@@ -259,7 +282,7 @@
             const d = await api('m/rating'); let rk = 0;
             $('#s-rate').innerHTML = `<div class="card"><h2>🏅 Reyting</h2><p class="sub">Tugatganlar: <b>${d.done} / ${d.total}</b> · ⭐ O‘rtacha baho: <b>${d.avgStars || '—'}</b> (${d.rated} ta)</p>` +
                 (d.list.map((x, i) => { if (!(i && x.score === d.list[i - 1].score)) rk = i + 1; const st = x.stars || 0;
-                    return `<div class="rrow r${Math.min(rk, 4)}"><span class="rn">${['', '🥇', '🥈', '🥉'][rk] || rk}</span><span class="rname">${esc(x.name)}<br><small>${x.correct}/${x.n} to‘g‘ri · ${x.score}/${x.total} ball · ${'★'.repeat(st)}${'☆'.repeat(5 - st)}</small></span><b>${x.pct}%</b></div>`; }).join('') || 'Hali hech kim testni tugatmagan') + '</div>';
+                    return `<div class="rrow r${Math.min(rk, 4)}" style="cursor:pointer" title="Javoblarini ko‘rish" onclick="showAns('${esc(x.login)}')"><span class="rn">${['', '🥇', '🥈', '🥉'][rk] || rk}</span><span class="rname">${esc(x.name)}<br><small>${x.correct}/${x.n} to‘g‘ri · ${x.score}/${x.total} ball · ${'★'.repeat(st)}${'☆'.repeat(5 - st)}</small></span><b>${x.pct}%</b></div>`; }).join('') || 'Hali hech kim testni tugatmagan') + '</div>';
         } catch (e) { $('#s-rate').innerHTML = `<div class="card">${esc(e.message)}</div>`; }
     }
     function ringAnim(p) { const r = $('#ring'), t = $('#rp'); let x = 0; const step = () => { x = Math.min(p, x + Math.max(1, p / 40)); r.style.setProperty('--p', x); t.textContent = Math.round(x) + '%'; if (x < p) requestAnimationFrame(step); }; step(); }
@@ -347,7 +370,7 @@
     }
     async function startTest() {
         getAC();
-        try { const d = await api('start', 'POST'); try { await document.documentElement.requestFullscreen(); } catch {} runTest(d); }
+        try { const d = await api('start', 'POST'); try { await document.documentElement.requestFullscreen(); } catch {} await lockLand(); runTest(d); }
         catch (e) { $('#e').textContent = e.message; }
     }
     function runTest(d) {
@@ -406,7 +429,7 @@
         navigator.sendBeacon('/api/event', new Blob([JSON.stringify({ token, type, detail })], { type: 'application/json' }));
     }
     function hide(type, detail) { if (!guarding) return; $('#cover').style.display = 'flex'; report(type, detail); }
-    function resume() { $('#cover').style.display = 'none'; document.documentElement.requestFullscreen?.().catch(() => {}); }
+    function resume() { $('#cover').style.display = 'none'; document.documentElement.requestFullscreen?.().then(lockLand).catch(() => {}); }
     const H = {
         vis: () => { if (document.hidden) hide('left', 'Boshqa tab/ilovaga o‘tdi'); },
         blur: () => hide('left', 'Oyna fokusdan chiqdi'),
@@ -422,13 +445,13 @@
     };
     const NO = ['contextmenu', 'copy', 'cut', 'selectstart', 'dragstart'];
     function startGuard() {
-        if (guarding) return; guarding = true;
+        if (guarding) return; guarding = true; document.body.classList.add('test');
         document.addEventListener('visibilitychange', H.vis); window.addEventListener('blur', H.blur);
         document.addEventListener('fullscreenchange', H.fs); window.addEventListener('pagehide', H.hidePage);
         document.addEventListener('keydown', H.key); document.addEventListener('keyup', H.keyup); NO.forEach(ev => document.addEventListener(ev, H.no));
     }
     function stopGuard() {
-        if (!guarding) return; guarding = false; $('#cover').style.display = 'none';
+        if (!guarding) return; guarding = false; document.body.classList.remove('test'); try { screen.orientation.unlock(); } catch {} $('#cover').style.display = 'none';
         document.removeEventListener('visibilitychange', H.vis); window.removeEventListener('blur', H.blur);
         document.removeEventListener('fullscreenchange', H.fs); window.removeEventListener('pagehide', H.hidePage);
         document.removeEventListener('keydown', H.key); document.removeEventListener('keyup', H.keyup); NO.forEach(ev => document.removeEventListener(ev, H.no));
@@ -469,9 +492,9 @@
   <input id="qt" placeholder="Savol / masala matni">
   <div id="f-mcq">${[0, 1, 2, 3].map(i => `<label class="opt"><input type="radio" name="c" value="${i}" ${i ? '' : 'checked'}><input class="o" placeholder="${i + 1}-variant${i < 2 ? '' : ' (ixtiyoriy)'}"></label>`).join('')}<small>To‘g‘ri javob — doirachani belgilang.</small></div>
   <div id="f-ans" style="display:none"><input id="an" placeholder="To‘g‘ri javob (Python uchun — kutilgan natija)"></div>
-  <input id="pt" type="number" min="1" max="100" placeholder="Shu savol uchun ball (standart: 1)"><div class="err" id="e"></div><button onclick="addQ()">Qo‘shish</button></div>
+  <input id="pt" type="number" min="0.01" max="100" step="any" placeholder="Shu savol uchun ball (masalan 2 yoki 2.5; standart: 1)"><div class="err" id="e"></div><button onclick="addQ()">Qo‘shish</button></div>
   <div class="card"><h2>🎯 Ball berish (oraliq bo‘yicha)</h2><small>Masalan: 1 dan 10 gacha — 2 ball, 11 dan 20 gacha — 5 ball.</small>
-  <input id="bf" type="number" min="1" placeholder="Nechanchi savoldan (masalan 1)"><input id="bt" type="number" min="1" placeholder="Nechanchi savolgacha (masalan 10)"><input id="bp" type="number" min="1" max="100" placeholder="Ball (masalan 2)">
+  <input id="bf" type="number" min="1" placeholder="Nechanchi savoldan (masalan 1)"><input id="bt" type="number" min="1" placeholder="Nechanchi savolgacha (masalan 10)"><input id="bp" type="number" min="0.01" max="100" step="any" placeholder="Ball (masalan 2 yoki 2.5)">
   <div class="err" id="be"></div><button class="alt" onclick="bulkPts()">Ball belgilash</button></div>
   <div class="card"><h2>🐍 Python (Run)</h2>${pyEd('pc', DEF_PY)}<button class="alt" onclick="tRun()">▶ Run</button><pre class="out" id="po"></pre></div>
   <div class="card"><h2>📥 Tayyor savollar</h2><small>PDF dagi 30 ta test (to‘g‘ri javoblari belgilangan) va 10 ta amaliy savol.</small><button class="alt" onclick="importSeed()">📥 30 test + 10 amaliyni qo‘shish</button><button class="red" onclick="clearQs()">🗑 Barcha savollarni o‘chirish</button><div class="smsg" id="im"></div></div>
@@ -491,7 +514,7 @@
             if (alerts.length) $('#al').innerHTML = alerts.slice(0, 30).map(a => `<div class="al"><b>${esc(a.name)}</b> (${esc(a.login)}) ${TYPE[a.type] || ''}<br><small>${new Date(a.t).toLocaleTimeString()} — ${esc(a.detail)}</small></div>`).join('');
             const S = { waiting: '⏳ kutmoqda', running: '✍️ yechmoqda', done: '✅ tugatdi' };
             $('#st').innerHTML = d.students.length ? `<table><tr><th>Ism</th><th>Holat</th><th>Ball</th><th>Chiqish</th><th></th></tr>` + d.students.map(s =>
-                `<tr><td>${esc(s.name)}<br><small>${esc(s.login)}</small></td><td>${S[s.status]}${s.remaining != null ? '<br><small>' + Math.ceil(s.remaining / 60000) + ' daq qoldi</small>' : ''}</td><td>${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : '—'}</td><td>${s.left}</td><td><button class="sm" title="Yangi parol berish" onclick="setPass('${esc(s.login)}')">🔑</button> ${s.status === 'waiting' ? '' : `<button class="sm" title="Qayta topshirtirish" onclick="retake('${esc(s.login)}')">🔁</button>`}</td></tr>`).join('') + '</table>' : 'Hali studentlar yo‘q';
+                `<tr><td>${esc(s.name)}<br><small>${esc(s.login)}</small></td><td>${S[s.status]}${s.remaining != null ? '<br><small>' + Math.ceil(s.remaining / 60000) + ' daq qoldi</small>' : ''}</td><td>${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : '—'}</td><td>${s.left}</td><td><button class="sm" title="Javoblarini ko‘rish" onclick="showAns('${esc(s.login)}')">👁</button> <button class="sm" title="Yangi parol berish" onclick="setPass('${esc(s.login)}')">🔑</button> ${s.status === 'waiting' ? '' : `<button class="sm" title="Qayta topshirtirish" onclick="retake('${esc(s.login)}')">🔁</button>`}</td></tr>`).join('') + '</table>' : 'Hali studentlar yo‘q';
             $('#qn').textContent = d.questions.length;
             $('#ql').innerHTML = d.questions.map((q, i) => { const t = q.type || 'mcq'; return `<div class="al q"><b>${i + 1}. ${esc(q.text)}</b><span class="pill">${LBL[t]}</span><span class="pill">${q.pts || 1} ball</span>` + (t === 'mcq' ? q.options.map((o, j) => `<div class="co" title="Bosib to‘g‘ri javob qiling" onclick="setCorrect('${q.id}',${j})">${j === q.correct ? '✅' : '▫️'} ${esc(o)}</div>`).join('') : `<div>✅ ${t === 'practice' ? 'Har qanday javob to‘g‘ri' : esc(q.answer)}</div>`) + `<button class="red" onclick="delQ('${q.id}')">O‘chirish</button></div>`; }).join('');
         } catch {}
@@ -521,6 +544,21 @@
         try { await api('t/clear', 'POST'); $('#im').textContent = '🗑 Savollar tozalandi'; poll(); } catch (e) { $('#im').textContent = e.message; }
     }
     function unansMsg() { const u = qs.filter(q => ans[q.id] === undefined || String(ans[q.id]).trim() === '').length; return u ? 'Hali ' + u + ' ta savolga javob bermadingiz. Baribir yakunlaysizmi?' : 'Testni yakunlaysizmi?'; }
+    async function showAns(l) {
+        try {
+            const d = await api('m/answers?login=' + encodeURIComponent(l)), st = d.student, S = { waiting: '⏳ kutmoqda', running: '✍️ yechmoqda (hozirgacha belgilaganlari)', done: '✅ tugatgan' };
+            const items = d.items.map((it, i) => {
+                const v = !it.answered ? '⏳' : it.good ? '✅' : '❌';
+                const body = it.type === 'mcq'
+                    ? it.options.map((o, j) => { const pick = it.given === j, right = j === it.correct; return `<div class="ao ${pick ? (right ? 'ok' : 'no') : right ? 'rt' : ''}">${pick ? (right ? '✅' : '❌') : right ? '✔️' : '▫️'} ${esc(o)}${pick ? ' <small>← tanlagan</small>' : ''}${right && !pick ? ' <small>(to‘g‘ri javob)</small>' : ''}</div>`; }).join('')
+                    : `<div class="ga"><small>Javobi:</small><pre>${it.answered ? esc(it.given) : '— javob berilmagan —'}</pre></div>` + (it.type === 'practice' ? '' : `<div class="ao rt">✔️ To‘g‘ri javob: ${esc(it.answer)}</div>`);
+                return `<div class="al q"><b>${i + 1}. ${esc(it.text)}</b> ${v} <span class="pill">${it.pts} ball</span>${body}</div>`;
+            }).join('');
+            const m = document.createElement('div'); m.className = 'mdl'; m.onclick = e => { if (e.target === m) m.remove(); };
+            m.innerHTML = `<div class="box"><div class="top"><h2>👁 ${esc(st.name)}</h2><button class="gray sm" onclick="this.closest('.mdl').remove()">✖ Yopish</button></div><p class="sub">${S[st.status]}${st.n ? ' · ' + st.correct + '/' + st.n + ' to‘g‘ri · ' + st.score + '/' + st.total + ' ball' : ''}</p>${items || 'Savollar yo‘q'}</div>`;
+            document.body.appendChild(m);
+        } catch (e) { alert(e.message); }
+    }
     async function delQ(id) { if (confirm('O‘chirilsinmi?')) { await api('t/question/' + id, 'DELETE'); poll(); } }
 
     /* ---------- ADMIN ---------- */
@@ -534,7 +572,7 @@
         try {
             const d = await api('a/state'), S = { waiting: '⏳', running: '✍️', done: '✅' };
             $('#s-ast').innerHTML = `<div class="card"><h2>👩‍🏫 O‘qituvchi o‘rni</h2><p>${d.teacherBusy ? '🔴 Band — o‘qituvchi kirgan' : '🟢 Bo‘sh'}</p>${d.teacherBusy ? '<button class="red" onclick="rel()">O‘qituvchini chiqarib, o‘rinni bo‘shatish</button>' : ''}</div>
-    <div class="card"><h2>👥 Studentlar (${d.students.length})</h2>` + (d.students.map(s => `<div class="al q"><b>${esc(s.name)}</b> <small>(${esc(s.login)})</small> ${S[s.status]} ${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : ''} · chiqish: ${s.left}<br><button class="sm" onclick="setPass('${esc(s.login)}')">🔑 Parol</button>
+    <div class="card"><h2>👥 Studentlar (${d.students.length})</h2>` + (d.students.map(s => `<div class="al q"><b>${esc(s.name)}</b> <small>(${esc(s.login)})</small> ${S[s.status]} ${s.score != null ? s.score + '/' + s.total + ' (' + pct(s) + '%)' : ''} · chiqish: ${s.left}<br><button class="sm" onclick="showAns('${esc(s.login)}')">👁 Javoblar</button> <button class="sm" onclick="setPass('${esc(s.login)}')">🔑 Parol</button>
       ${s.status !== 'waiting' ? `<button class="sm" onclick="retake('${esc(s.login)}')">🔁 Qayta</button> ` : ''}<button class="red" onclick="delSt('${esc(s.login)}')">🗑 O‘chirish</button></div>`).join('') || 'Hali studentlar yo‘q') + '</div>';
         } catch {}
     }

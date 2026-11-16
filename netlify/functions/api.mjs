@@ -22,11 +22,13 @@ const same = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.
 const pad = n => String(n).padStart(15, "0");
 const send = (c, o) => new Response(JSON.stringify(o), { status: c, headers: { "content-type": "application/json" } });
 
+const r2 = x => Math.round(x * 100) / 100;
+const pt = v => { const n = Number(String(v ?? "").replace(",", ".")); return n > 0 ? Math.min(100, r2(n)) : 1; };
 const norm = x => String(x ?? "").replace(/\r/g, "").split("\n").map(l => l.trimEnd()).join("\n").trim().toLowerCase();
 const ok = (q, a) => { const t = q.type || "mcq"; if (t === "mcq") return a === q.correct; if (t === "practice") return norm(a) !== ""; return norm(a) === norm(q.answer); };
 async function finish(s) {
   const qs = await getQ(), ans = (await get("ans:" + s.login)) || {};
-  s.n = qs.length; s.correct = qs.filter(q => ok(q, ans[q.id])).length; s.total = qs.reduce((a, q) => a + (q.pts || 1), 0); s.score = qs.filter(q => ok(q, ans[q.id])).reduce((a, q) => a + (q.pts || 1), 0); s.submitted = true;
+  s.n = qs.length; s.correct = qs.filter(q => ok(q, ans[q.id])).length; s.total = r2(qs.reduce((a, q) => a + (q.pts || 1), 0)); s.score = r2(qs.filter(q => ok(q, ans[q.id])).reduce((a, q) => a + (q.pts || 1), 0)); s.submitted = true;
   await set("s:" + s.login, s);
   const t = Date.now(); await set("r:" + pad(t) + "-" + s.login, { t, login: s.login, name: s.name, score: s.score, total: s.total, correct: s.correct, n: s.n });
 }
@@ -56,7 +58,7 @@ async function rescoreAll() {
     await Promise.all(keys.slice(i, i + 8).map(async k => {
       const s = await get(k); if (!s || !s.submitted) return;
       const ans = (await get("ans:" + s.login)) || {}, good = qs.filter(q => ok(q, ans[q.id]));
-      s.n = qs.length; s.correct = good.length; s.total = qs.reduce((a, q) => a + (q.pts || 1), 0); s.score = good.reduce((a, q) => a + (q.pts || 1), 0);
+      s.n = qs.length; s.correct = good.length; s.total = r2(qs.reduce((a, q) => a + (q.pts || 1), 0)); s.score = r2(good.reduce((a, q) => a + (q.pts || 1), 0));
       await set(k, s);
       const rkey = rk[s.login]; if (rkey) { const r = await get(rkey); if (r) await set(rkey, { ...r, score: s.score, total: s.total, correct: s.correct, n: s.n }); }
     }));
@@ -172,7 +174,7 @@ export default async (req) => {
       if (P === "/api/t/question" && M === "POST") {
         const type = ["mcq", "text", "code", "practice"].includes(body.type) ? body.type : "mcq";
         const text = String(body.text || "").trim().slice(0, 1000);
-        const q = { id: rid().slice(0, 8), type, text, pts: Math.min(100, Math.max(1, Math.round(Number(body.pts) || 1))) };
+        const q = { id: rid().slice(0, 8), type, text, pts: pt(body.pts) };
         if (type === "mcq") {
           q.options = (Array.isArray(body.options) ? body.options : []).map(o => String(o).trim().slice(0, 200)).filter(Boolean);
           q.correct = Number(body.correct);
@@ -185,7 +187,7 @@ export default async (req) => {
         return send(200, { ok: true });
       }
       if (P === "/api/t/points" && M === "POST") {
-        const f = Number(body.from), t = Number(body.to), pts = Math.min(100, Math.max(1, Math.round(Number(body.points) || 1)));
+        const f = Number(body.from), t = Number(body.to), pts = pt(body.points);
         if (!(f >= 1 && t >= f)) return send(400, { error: "Oraliqni to‘g‘ri kiriting (masalan 1 dan 10 gacha)" });
         const qs = (await get("q")) || []; qs.forEach((q, i) => { if (i + 1 >= f && i + 1 <= t) q.pts = pts; }); await setQ(qs); await rescoreAll();
         return send(200, { ok: true });
@@ -200,7 +202,7 @@ export default async (req) => {
         for (const x of (Array.isArray(body.questions) ? body.questions : []).slice(0, 200)) {
           const type = ["mcq", "text", "code", "practice"].includes(x.type) ? x.type : "mcq", text = String(x.text || "").trim().slice(0, 1000);
           if (!text || qs.some(q => q.text === text)) continue;
-          const q = { id: rid().slice(0, 8), type, text, pts: Math.min(100, Math.max(1, Math.round(Number(x.pts) || 1))) };
+          const q = { id: rid().slice(0, 8), type, text, pts: pt(x.pts) };
           if (type === "mcq") {
             q.options = (Array.isArray(x.options) ? x.options : []).map(o => String(o).trim().slice(0, 200)).filter(Boolean).slice(0, 6); q.correct = Number(x.correct);
             if (q.options.length < 2 || !(q.correct >= 0 && q.correct < q.options.length)) continue;
@@ -219,6 +221,13 @@ export default async (req) => {
     if ((ses.role === "teacher" || ses.role === "admin") && P.startsWith("/api/m/")) {
       if (ses.role === "admin" && !(await adminOk(tok))) return send(401, { error: "Sessiya tugagan" });
       if (ses.role === "teacher") { const lk = await get("tlock"); if (!lk || lk.token !== tok) return send(401, { error: "Sessiya tugagan" }); }
+      if (P === "/api/m/answers" && M === "GET") {
+        const l = String(u.searchParams.get("login") || "").toLowerCase(), s = await get("s:" + l);
+        if (!s) return send(404, { error: "Student topilmadi" });
+        const qs = (await get("q")) || [], ans = (await get("ans:" + l)) || {};
+        return send(200, { student: { name: s.name, login: s.login, status: s.submitted ? "done" : s.startedAt ? "running" : "waiting", correct: s.correct, n: s.n, score: s.score, total: s.total },
+          items: qs.map(q => { const g = ans[q.id]; return { id: q.id, type: q.type || "mcq", text: q.text, options: q.options, pts: q.pts || 1, correct: q.correct, answer: q.answer, given: g, answered: g !== undefined && String(g).trim() !== "", good: ok(q, g) }; }) });
+      }
       if (P === "/api/m/rating" && M === "GET") {
         const all = await studentsList(), rated = all.filter(x => x.stars);
         const list = all.filter(x => x.status === "done").map(x => ({ ...x, pct: x.total ? Math.round(x.score / x.total * 100) : 0 })).sort((a, b) => b.score - a.score || b.pct - a.pct || a.name.localeCompare(b.name));
