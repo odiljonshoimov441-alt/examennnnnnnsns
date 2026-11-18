@@ -578,9 +578,9 @@
                     : `<div class="ga"><small>Javobi:</small><pre>${it.answered ? esc(it.given) : '— javob berilmagan —'}</pre></div>` + (it.type === 'practice' ? '' : `<div class="ao rt">✔️ To‘g‘ri javob: ${esc(it.answer)}</div>`);
                 return `<div class="al q"><b>${i + 1}. ${esc(it.text)}</b> ${v} <span class="pill">${it.pts} ball</span>${body}</div>`;
             }).join('');
-            const m = document.createElement('div'); m.className = 'mdl'; m.onclick = e => { if (e.target === m) m.remove(); };
-            m.innerHTML = `<div class="box"><div class="top"><h2>👁 ${esc(st.name)} <span class="pill">${st.m}-oylik test</span></h2><button class="gray sm" onclick="this.closest('.mdl').remove()">✖ Yopish</button></div><p class="sub">${S[st.status]}${st.n ? ' · ' + st.correct + '/' + st.n + ' to‘g‘ri · ' + st.score + '/' + st.total + ' ball' : ''}</p>${items || 'Savollar yo‘q'}</div>`;
-            document.body.appendChild(m);
+            const md = document.createElement('div'); md.className = 'mdl'; md.onclick = e => { if (e.target === md) md.remove(); };
+            md.innerHTML = `<div class="box"><div class="top"><h2>👁 ${esc(st.name)} <span class="pill">${st.m}-oylik test</span></h2><button class="gray sm" onclick="this.closest('.mdl').remove()">✖ Yopish</button></div><p class="sub">${S[st.status]}${st.n ? ' · ' + st.correct + '/' + st.n + ' to‘g‘ri · ' + st.score + '/' + st.total + ' ball' : ''}</p>${items || 'Savollar yo‘q'}</div>`;
+            document.body.appendChild(md);
         } catch (e) { alert(e.message); }
     }
     async function delQ(id) { if (confirm('O‘chirilsinmi?')) { await api('t/question/' + id, 'DELETE'); poll(); } }
